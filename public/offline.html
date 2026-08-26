@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HostPro — no connection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#000;--card:#0d0d0d;--line:rgba(255,255,255,.14);--text:#fff;--body:#ccc;--dim:#9a9a9a;--accent:#81dae2}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{min-height:100dvh;display:grid;place-items:center;padding:30px 20px;background:var(--bg);
+    color:var(--body);font-family:Figtree,system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden}
+  .orb{position:fixed;left:50%;top:50%;width:min(620px,88vw);aspect-ratio:1;transform:translate(-50%,-46%);
+    background:radial-gradient(circle,transparent 26%,rgba(94,190,196,.5) 42%,rgba(10,232,240,.22) 54%,transparent 68%);
+    filter:blur(42px);pointer-events:none}
+  .card{position:relative;z-index:3;width:100%;max-width:420px;background:var(--card);border:1px solid var(--line);
+    border-radius:18px;padding:34px 30px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.7)}
+  img{height:52px;width:auto;margin:0 auto 20px;display:block}
+  h1{font-size:26px;font-weight:600;letter-spacing:-1px;color:var(--text);margin-bottom:10px}
+  p{font-size:14px;color:var(--dim);line-height:1.6;margin-bottom:24px}
+  button{width:100%;padding:11px 20px;border:0;border-radius:8px;background:var(--accent);color:#04191b;
+    font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+  button:focus-visible{outline:2px solid #0ae8f0;outline-offset:2px}
+  .note{margin:18px 0 0;font-size:12.5px;color:var(--dim)}
+</style>
+</head>
+<body>
+  <div class="orb"></div>
+  <main class="card">
+    <img src="/icon-192.png" alt="HostPro">
+    <h1>No connection</h1>
+    <p>HostPro needs a network to load properties, issues and money. Reconnect and try again.</p>
+    <button onclick="location.replace('/')">Try again</button>
+    <p class="note">Your sign-in is still saved on this device.</p>
+  </main>
+</body>
+</html>

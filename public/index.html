@@ -1,0 +1,2989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>HostPro OS</title>
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="HostPro">
+<link rel="manifest" href="manifest.webmanifest" id="pwaManifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+/* ============================================================
+   HostPro OS — the website's design system, tuned for dense data.
+   bg #000 · Figtree · accent #81DAE2 · cyan #0AE8F0
+   cards rgba(13,13,13,.8) r18 · badges r12 · buttons r8
+   ============================================================ */
+:root{
+  --bg:#000000;
+  --card:rgba(13,13,13,.8);
+  --card-solid:#0d0d0d;
+  --inner:#0f0f11;
+  --line:rgba(255,255,255,.08);
+  --line-strong:rgba(255,255,255,.14);
+  --text:#ffffff;
+  --body:#cccccc;
+  --dim:#9a9a9a;
+  --accent:#81dae2;
+  --cyan:#0ae8f0;
+  --good:#5ee0a8;
+  --warn:#f0c05a;
+  --bad:#f0705a;
+  --r-card:18px;
+  --r-inner:8px;
+  --r-badge:12px;
+  --nav-h:62px;
+  --max:1320px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg); color:var(--body);
+  font-family:'Figtree',system-ui,sans-serif;
+  font-size:15px; line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+a{color:inherit;text-decoration:none}
+::selection{background:rgba(129,218,226,.35);color:#fff}
+.hidden{display:none !important}
+.num{font-variant-numeric:tabular-nums}
+h1{font-size:clamp(34px,5vw,52px);font-weight:600;letter-spacing:-1.8px;line-height:1.1;color:var(--text)}
+h2{font-size:20px;font-weight:500;letter-spacing:-.5px;color:var(--text)}
+h3{font-size:17px;font-weight:500;letter-spacing:-.3px;color:var(--text)}
+
+/* ---------- starfield + orb, lifted from the site ---------- */
+.stars,.stars::after{
+  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    radial-gradient(1px 1px at 8% 22%, rgba(255,255,255,.7) 50%, transparent 51%),
+    radial-gradient(1px 1px at 21% 68%, rgba(255,255,255,.5) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 33% 15%, rgba(255,255,255,.6) 50%, transparent 51%),
+    radial-gradient(1px 1px at 46% 82%, rgba(255,255,255,.45) 50%, transparent 51%),
+    radial-gradient(1px 1px at 58% 34%, rgba(255,255,255,.55) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 71% 74%, rgba(255,255,255,.5) 50%, transparent 51%),
+    radial-gradient(1px 1px at 83% 19%, rgba(255,255,255,.65) 50%, transparent 51%),
+    radial-gradient(1px 1px at 93% 55%, rgba(255,255,255,.4) 50%, transparent 51%),
+    radial-gradient(1px 1px at 14% 44%, rgba(255,255,255,.35) 50%, transparent 51%),
+    radial-gradient(1px 1px at 66% 8%, rgba(255,255,255,.5) 50%, transparent 51%);
+}
+.stars::after{transform:scale(-1,1) translateY(28%)}
+.orb{
+  position:absolute;z-index:1;width:min(620px,88vw);aspect-ratio:1;
+  left:50%;top:50%;transform:translate(-50%,-46%);
+  background:radial-gradient(circle,transparent 26%,rgba(94,190,196,.5) 42%,rgba(10,232,240,.22) 54%,transparent 68%);
+  filter:blur(42px);animation:orbPulse 9s ease-in-out infinite;pointer-events:none;
+}
+@keyframes orbPulse{
+  0%,100%{transform:translate(-50%,-46%) rotate(0deg) scale(1);opacity:.9}
+  50%{transform:translate(-50%,-46%) rotate(18deg) scale(1.06);opacity:1}
+}
+@media (prefers-reduced-motion:reduce){ .orb{animation:none} .reveal{transition:none} }
+
+/* ---------- badges, chips, buttons ---------- */
+.badge{display:inline-block;padding:7px 15px;border-radius:var(--r-badge);
+  background:#101012;border:1px solid var(--line-strong);color:#e8e8e8;font-size:13px;font-weight:500}
+.badge--accent{background:var(--accent);border-color:var(--accent);color:#04191b}
+.badge-duo{display:inline-flex;align-items:center;background:#0e0e10;border:1px solid var(--line-strong);
+  border-radius:999px;padding:4px}
+.badge-duo .badge--accent{border-radius:999px;padding:6px 14px}
+.badge-duo span:last-child{padding:6px 14px;font-size:13px;color:#e8e8e8;font-weight:500}
+
+.btn{display:inline-block;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:500;
+  border:1px solid transparent;cursor:pointer;font-family:inherit;
+  transition:filter .2s ease,background .2s ease,border-color .2s ease}
+.btn--primary{background:var(--accent);color:#04191b;font-weight:600;
+  box-shadow:0 1px 1px rgba(0,0,0,.15),0 4px 8px rgba(0,0,0,.14),0 14px 30px rgba(0,0,0,.1)}
+.btn--primary:hover{filter:brightness(1.08)}
+.btn--ghost{background:#0f0f11;border-color:var(--line-strong);color:#eaeaea}
+.btn--ghost:hover{border-color:rgba(255,255,255,.3)}
+.btn--sm{padding:6px 13px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:wait}
+.btn:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,
+summary:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.link{color:var(--cyan);cursor:pointer}
+.mini{background:none;border:none;color:var(--dim);cursor:pointer;font:inherit;font-size:13px;padding:2px 6px;border-radius:6px}
+.mini:hover{color:#fff;background:rgba(255,255,255,.06)}
+.mini--danger:hover{color:var(--bad)}
+.mini--go{color:var(--cyan)}
+
+/* ---------- app chrome ---------- */
+.nav{position:sticky;top:0;z-index:60;background:#000;border-bottom:1px solid rgba(255,255,255,.06)}
+html.native .nav{padding-top:env(safe-area-inset-top)}
+html.native .subnav{top:calc(var(--nav-h) + env(safe-area-inset-top))}
+.nav__in{max-width:var(--max);margin:0 auto;height:var(--nav-h);display:flex;align-items:center;
+  gap:16px;padding:0 20px}
+.logo{display:flex;align-items:center;gap:11px;color:#fff;font-weight:600;font-size:17px;white-space:nowrap}
+.logo__mark{height:26px;width:auto;display:block;border-right:1px solid rgba(255,255,255,.25);
+  padding-right:11px}
+.nav__links{display:flex;align-items:center;gap:4px;margin-left:10px;overflow-x:auto;scrollbar-width:none}
+.nav__links::-webkit-scrollbar{display:none}
+.nav__links button{background:transparent;border:none;color:#c9c9c9;font:inherit;font-size:14.5px;
+  font-weight:500;padding:8px 14px;border-radius:8px;cursor:pointer;white-space:nowrap;transition:.2s}
+.nav__links button:hover{color:#fff;background:rgba(255,255,255,.05)}
+.nav__links button.on{color:#04191b;background:var(--accent);font-weight:600}
+.nav__right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.who{display:flex;align-items:center;gap:8px;background:#0e0e10;border:1px solid var(--line-strong);
+  border-radius:999px;padding:5px 6px 5px 12px;font-size:13px;color:#e8e8e8;white-space:nowrap}
+.who__dot{width:26px;height:26px;border-radius:50%;background:var(--accent);color:#04191b;
+  display:grid;place-items:center;font-weight:700;font-size:12px}
+.sync{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--dim);white-space:nowrap}
+.sync__dot{width:7px;height:7px;border-radius:50%;background:var(--warn);transition:background .3s}
+.sync--ok .sync__dot{background:var(--good);box-shadow:0 0 8px rgba(94,224,168,.6)}
+.sync--off .sync__dot{background:var(--bad)}
+
+.subnav{position:sticky;top:var(--nav-h);z-index:55;background:rgba(0,0,0,.92);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:10px 20px;
+  display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.subnav__in{max-width:var(--max);margin:0 auto;display:flex;gap:7px;align-items:center;
+  flex-wrap:wrap;width:100%}
+.subnav button{background:#0e0e10;border:1px solid var(--line);color:var(--dim);font:inherit;
+  font-size:13.5px;padding:6px 14px;border-radius:999px;cursor:pointer;transition:.2s}
+.subnav button:hover{color:#fff;border-color:var(--line-strong)}
+.subnav button.on{color:var(--accent);border-color:rgba(129,218,226,.45);background:rgba(129,218,226,.08)}
+.subnav .spacer{margin-left:auto}
+.monthpick{background:#0e0e10;border:1px solid var(--line-strong);color:var(--accent);
+  border-radius:999px;padding:6px 12px;font:inherit;font-size:13.5px;font-weight:600;width:auto}
+
+main{max-width:var(--max);margin:0 auto;padding:26px 20px 90px}
+.page{display:none}
+.page.on{display:block}
+
+/* ---------- panels & stats ---------- */
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);
+  padding:22px;margin-bottom:20px;position:relative;overflow:hidden}
+.panel__glow::after{content:"";position:absolute;left:10%;right:10%;bottom:-55%;height:75%;
+  background:radial-gradient(ellipse at center,rgba(94,190,196,.16),transparent 65%);pointer-events:none}
+.panel > *{position:relative;z-index:1}
+.panel h2{margin-bottom:5px}
+.panel .desc{font-size:13.5px;color:var(--dim);margin-bottom:16px;max-width:78ch}
+.head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.head h2{margin:0}
+.head .spacer{margin-left:auto}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:960px){.row2{grid-template-columns:1fr}}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:14px;margin-bottom:20px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);
+  padding:16px 18px;position:relative;overflow:hidden}
+.stat::after{content:"";position:absolute;left:12%;right:12%;bottom:-60%;height:80%;
+  background:radial-gradient(ellipse at center,rgba(94,190,196,.22),transparent 65%);pointer-events:none}
+.stat__l{font-size:11.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--dim);position:relative;z-index:1}
+.stat__v{font-size:26px;font-weight:600;color:#fff;margin-top:5px;letter-spacing:-1px;position:relative;z-index:1}
+.stat--good .stat__v{color:var(--good)}
+.stat--warn .stat__v{color:var(--warn)}
+.stat--bad  .stat__v{color:var(--bad)}
+
+/* ---------- forms ---------- */
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:900px){.g3,.g4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:620px){.g2,.g3,.g4{grid-template-columns:1fr}}
+.f label{display:block;font-size:12px;color:#e6e6e6;font-weight:500;margin-bottom:7px}
+.f input,.f select,.f textarea{width:100%;background:#0e0e10;border:1px solid var(--line-strong);
+  border-radius:8px;padding:11px 13px;color:#fff;font-size:14.5px;font-family:inherit}
+.f input::placeholder,.f textarea::placeholder{color:#6a6a6a}
+.f textarea{min-height:88px;resize:vertical}
+.f .hint{font-size:12px;color:var(--dim);margin-top:6px}
+.search{background:#0e0e10;border:1px solid var(--line-strong);border-radius:8px;padding:9px 13px;
+  color:#fff;font:inherit;font-size:14px;min-width:230px;flex:1;max-width:360px}
+.search::placeholder{color:#6a6a6a}
+select.pick{background:#0e0e10;border:1px solid var(--line-strong);border-radius:8px;padding:8px 11px;
+  color:#e8e8e8;font:inherit;font-size:13.5px;width:auto}
+.inline{background:#111114;border:1px solid var(--line-strong);border-radius:7px;padding:5px 9px;
+  color:#fff;font:inherit;font-size:13px;width:auto}
+
+/* ---------- tables ---------- */
+.scroll{overflow-x:auto;margin:0 -4px;padding:0 4px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);text-align:left;
+  padding:10px 10px;border-bottom:1px solid var(--line-strong);white-space:nowrap;font-weight:600}
+td{padding:11px 10px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--body)}
+tbody tr:hover td,tr:hover td{background:rgba(255,255,255,.025)}
+td.r,th.r{text-align:right}
+tr.grouped td{background:#0b0b0d;color:var(--accent);font-size:11.5px;text-transform:uppercase;
+  letter-spacing:.09em;font-weight:600}
+.empty{color:var(--dim);font-size:14px;padding:22px 6px;text-align:center}
+.strong{color:#fff;font-weight:600}
+.muted{color:var(--dim);font-size:12.5px}
+
+/* ---------- pills ---------- */
+.pill{display:inline-block;border-radius:999px;padding:3px 11px;font-size:12px;font-weight:600;
+  white-space:nowrap;border:1px solid transparent}
+.pill--good{background:rgba(94,224,168,.12);color:var(--good);border-color:rgba(94,224,168,.3)}
+.pill--warn{background:rgba(240,192,90,.12);color:var(--warn);border-color:rgba(240,192,90,.3)}
+.pill--bad{background:rgba(240,112,90,.12);color:var(--bad);border-color:rgba(240,112,90,.32)}
+.pill--info{background:rgba(10,232,240,.1);color:var(--cyan);border-color:rgba(10,232,240,.28)}
+.pill--flat{background:#141417;color:var(--dim);border-color:var(--line-strong)}
+.pill--accent{background:rgba(129,218,226,.14);color:var(--accent);border-color:rgba(129,218,226,.34)}
+
+/* ---------- notices ---------- */
+.note{border-radius:12px;padding:13px 16px;font-size:13.5px;margin-bottom:16px;
+  background:rgba(129,218,226,.07);border:1px solid rgba(129,218,226,.25);color:#d6f2f4}
+.note--bad{background:rgba(240,112,90,.08);border-color:rgba(240,112,90,.3);color:#f7c5bb}
+.note--warn{background:rgba(240,192,90,.07);border-color:rgba(240,192,90,.28);color:#f4dfae}
+
+/* ---------- gates & modals ---------- */
+.gate{position:relative;min-height:100vh;display:grid;place-items:center;padding:30px 20px;overflow:hidden}
+.gate__card{position:relative;z-index:3;width:100%;max-width:420px;background:var(--card-solid);
+  border:1px solid var(--line-strong);border-radius:var(--r-card);padding:34px 30px;
+  box-shadow:0 30px 80px rgba(0,0,0,.7)}
+.gate__card h1{font-size:30px;letter-spacing:-1.2px;margin:16px 0 8px}
+.gate__card .lead{font-size:14px;color:var(--dim);margin-bottom:24px}
+.err{color:var(--bad);font-size:13px;min-height:1.2em;margin-top:10px}
+.wall{max-width:420px;margin:60px auto;text-align:center;background:var(--card);
+  border:1px solid var(--line);border-radius:var(--r-card);padding:38px 28px}
+.wall h2{margin:14px 0 8px}
+.wall p{font-size:14px;color:var(--dim)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(6px);z-index:200;
+  display:flex;align-items:flex-start;justify-content:center;padding:24px;overflow:auto}
+.modal__box{background:var(--card-solid);border:1px solid var(--line-strong);border-radius:var(--r-card);
+  max-width:820px;width:100%;padding:26px;margin:auto 0;box-shadow:0 30px 90px rgba(0,0,0,.75)}
+.modal__box h2{margin-bottom:18px}
+.modal__foot{margin-top:20px;display:flex;gap:10px}
+
+#toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(12px);
+  background:#101014;border:1px solid var(--line-strong);color:#fff;padding:12px 22px;border-radius:12px;
+  font-size:14px;opacity:0;pointer-events:none;transition:.25s;max-width:92vw;text-align:center;z-index:300;
+  box-shadow:0 18px 50px rgba(0,0,0,.6)}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .55s ease,transform .55s ease}
+.reveal.in{opacity:1;transform:none}
+
+@media(max-width:760px){
+  .nav__in{gap:10px;padding:0 14px}
+  .nav__links{position:fixed;bottom:0;left:0;right:0;background:#08080a;
+    border-top:1px solid var(--line-strong);margin:0;padding:6px 8px calc(6px + env(safe-area-inset-bottom));
+    z-index:80;justify-content:space-between}
+  .nav__links button{flex:1;text-align:center;font-size:12px;padding:9px 4px}
+  main{padding:20px 14px 110px}
+  .subnav{padding:9px 14px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  .subnav::-webkit-scrollbar{display:none}
+  .subnav__in{flex-wrap:nowrap}
+  .panel{padding:18px}
+}
+</style>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     MOBILE FIT — added 11 Aug 2026
+     Additive and self-contained. Delete this whole <style> element and
+     the app returns exactly to how it behaved before. No markup, no
+     logic and no class name changes.
+
+     THE PROBLEM IT SOLVES
+     The header could not shrink. .nav__right held the sync label and the
+     who pill, both white-space:nowrap, next to a 159px logo. On a 390px
+     phone that chain measured 471px, so the page laid out 472px wide and
+     the phone had to be pinched out to see it.
+
+     That one overflow caused everything else. The browser widens the
+     layout viewport to the widest thing on the page, so @media rules were
+     being evaluated against 472px instead of 390px — which is why the
+     max-width:620px rules never fired, forms stayed two columns, and the
+     month picker sat off the right edge. Letting the header shrink fixes
+     the rest by itself.
+
+     RULE OF THUMB FOR ANYTHING ADDED LATER
+     If an element must not wrap, it also needs min-width:0 and a way to
+     truncate, or it becomes the new floor width for the whole app.
+     ══════════════════════════════════════════════════════════════════ -->
+<style id="mobileFit">
+
+/* ---------- 1. the fix: a header that is allowed to shrink ---------- */
+@media(max-width:760px){
+  html,body{max-width:100%;overflow-x:hidden}
+
+  .nav__in{gap:10px;padding:0 12px;min-width:0}
+  .logo{flex:0 0 auto;min-width:0}
+
+  /* Shrink before overflow, in this order: the name first, then the
+     sync label. The avatar and the status dot never shrink — they are
+     the two things that still read at a glance. */
+  .nav__right{flex:1 1 auto;min-width:0;justify-content:flex-end;gap:8px}
+  .sync{flex:0 1 auto;min-width:0;overflow:hidden}
+  #syncTxt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+  .sync__dot{flex:0 0 auto}
+  .who{flex:0 1 auto;min-width:0;overflow:hidden;padding:5px 5px 5px 10px}
+  #whoName{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+  .who__dot{flex:0 0 auto}
+}
+
+/* Below this width the wordmark and the sync label stop earning their
+   space. The monogram and the coloured dot carry the same meaning. */
+@media(max-width:620px){
+  .logo{font-size:0;gap:0}
+  .logo__mark{border-right:none;padding-right:0}
+}
+/* The label used to be hidden entirely on narrow phones, which left a
+   bare coloured dot and no way to tell syncing from offline. It now
+   shrinks and truncates instead — setSync also sets a short form of the
+   text for exactly this width. */
+@media(max-width:430px){
+  #syncTxt{font-size:11px;max-width:74px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .who{max-width:118px}
+  .sync{gap:5px}
+}
+
+/* ---------- 2. bottom tab bar: five tabs, any screen ---------- */
+@media(max-width:760px){
+  .nav__links{overflow-x:hidden;justify-content:space-around}
+  /* Size to the label rather than to an equal fifth, so nothing is
+     truncated at five tabs. min-width:0 is the safety net if a sixth
+     is ever added — it shortens instead of pushing the bar wider. */
+  .nav__links button{flex:0 1 auto;min-width:0;font-size:12px;padding:9px 6px;
+    overflow:hidden;text-overflow:ellipsis}
+}
+
+/* ---------- 3. the month picker comes first, not last ----------
+   It filters every screen in the app, so on a phone it leads the row
+   instead of being pushed past the right edge by the spacer. */
+@media(max-width:760px){
+  .subnav{padding:8px 12px}
+  .subnav__in{gap:6px}
+  .subnav .spacer{display:none}
+  .subnav button{white-space:nowrap;flex:0 0 auto}
+  .monthpick{order:-1;flex:0 0 auto}
+}
+
+/* ---------- 4. iOS: no zoom when a field is tapped ----------
+   Safari zooms into any focused field under 16px and does not zoom back
+   out. Every input on a phone is 16px for that one reason. */
+@media(max-width:760px){
+  .f input,.f select,.f textarea,.search,select.pick,.inline,.monthpick,
+  input,select,textarea{font-size:16px}
+  .search{min-width:0;width:100%;max-width:none}
+  .f input,.f select,.f textarea{padding:12px 13px}
+}
+
+/* ---------- 4b. one form field per row on a phone ----------
+   This is what the existing 620px rule already intended, done with flex
+   instead of a 1fr grid track. A grid track will not shrink below the
+   widest thing inside it, and a <select> is as wide as its longest
+   option — "Payment proof not received" was holding the booking form
+   open and pushing fields past the right edge. A stacked flex column
+   cannot be pushed out of shape by a long option. Nothing is truncated;
+   each select still opens at full width when tapped. */
+@media(max-width:760px){
+  .grid{display:flex;flex-direction:column;gap:14px;min-width:0}
+  .grid > *{width:100%;min-width:0}
+  .f{min-width:0}
+  .f input,.f select,.f textarea{min-width:0;max-width:100%;width:100%}
+}
+
+/* ---------- 5. wide tables stay swipeable, and stay put ----------
+   Tables were already inside .scroll and were never the cause of the
+   zoom. This only stops a sideways swipe on a table from dragging the
+   page with it. */
+@media(max-width:760px){
+  .scroll{-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+  th,td{padding-left:9px;padding-right:9px}
+}
+
+/* ---------- 6. panels, modals and touch targets ---------- */
+@media(max-width:760px){
+  .panel{padding:16px;border-radius:14px}
+  .modal{padding:12px}
+  .modal__box{padding:18px;border-radius:14px}
+  .gate__card{padding:28px 22px}
+  .mini{padding:6px 9px}
+  .btn{min-height:40px}
+  .stats{gap:10px}
+}
+
+/* ---------- 7. iPhone home-screen installs ----------
+   html.native is set by Capacitor only, so a PWA added to the iPhone
+   home screen got no safe-area padding and the header sat under the
+   Dynamic Island. Same treatment, keyed off the display mode instead. */
+@media all and (display-mode:standalone){
+  .nav{padding-top:env(safe-area-inset-top)}
+  .subnav{top:calc(var(--nav-h) + env(safe-area-inset-top))}
+}
+</style>
+</head>
+<body>
+
+<div id="bootErr" style="display:none;position:fixed;inset:0;z-index:9999;background:#000;color:#fff;
+  font-family:system-ui,sans-serif;padding:34px 26px;overflow:auto;line-height:1.6">
+  <div style="max-width:660px;margin:8vh auto;background:#0d0d0d;border:1px solid rgba(240,112,90,.4);
+    border-radius:18px;padding:26px">
+    <div style="color:#f0705a;font-size:19px;font-weight:600;margin-bottom:12px" id="bootErrTitle">
+      HostPro OS could not start</div>
+    <div id="bootErrBody" style="color:#ccc;font-size:14.5px"></div>
+    <pre id="bootErrDetail" style="margin-top:16px;background:#111;border:1px solid rgba(255,255,255,.14);
+      border-radius:8px;padding:14px;font-size:12.5px;color:#81dae2;white-space:pre-wrap;
+      font-family:ui-monospace,Menlo,monospace"></pre>
+    <button onclick="location.reload()" style="margin-top:16px;background:#81dae2;color:#04191b;border:none;
+      border-radius:8px;padding:10px 20px;font:inherit;font-weight:600;cursor:pointer">Try again</button>
+  </div>
+</div>
+<script>
+(function(){
+  /* Apps Script serves this page from its own domain, where the manifest and
+     icons do not exist. Drop the link rather than log four 404s. */
+  if(location.hostname.indexOf('script.google') > -1){
+    var mf = document.getElementById('pwaManifest');
+    if(mf && mf.parentNode) mf.parentNode.removeChild(mf);
+  }
+  var shown = false;
+  function show(title, body, detail){
+    if(shown) return; shown = true;
+    var box = document.getElementById('bootErr');
+    document.getElementById('bootErrTitle').textContent = title;
+    document.getElementById('bootErrBody').innerHTML = body;
+    document.getElementById('bootErrDetail').textContent = detail || '';
+    box.style.display = 'block';
+  }
+  window.addEventListener('error', function(e){
+    show('HostPro OS could not start',
+      'The page loaded but its code stopped with an error. Copy the line below and send it on — ' +
+      'it names exactly what broke.',
+      (e.message || 'unknown error') + '\n' +
+      String(e.filename || '').split('/').pop() + '  line ' + (e.lineno || '?') + ', column ' + (e.colno || '?'));
+  });
+  /* Nothing errored, but nothing appeared either. Just as useful to know. */
+  setTimeout(function(){
+    var hiddenAll = ['gate','serverGate','app'].every(function(id){
+      var el = document.getElementById(id);
+      return !el || el.classList.contains('hidden');
+    });
+    if(hiddenAll) show('HostPro OS started but never reached a screen',
+      'The code ran without throwing, yet no screen was shown. Open the browser console ' +
+      '(F12, then the Console tab) and send the first red line.',
+      'no error was reported to the page');
+  }, 5000);
+})();
+</script>
+
+<!-- ══════════ SERVER LINK (only when the app is installed, not in Apps Script) ══════════ -->
+<div class="gate hidden" id="serverGate">
+  <div class="stars"></div><div class="orb"></div>
+  <div class="gate__card">
+    <span class="badge-duo"><span class="badge badge--accent">Setup</span><span>One time</span></span>
+    <h1>Connect to your workspace</h1>
+    <p class="lead">Paste the web app link from Apps Script. It ends in <b>/exec</b>. You only do this once on this device.</p>
+    <div class="f"><label for="srvUrl">Web app link</label>
+      <input id="srvUrl" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off"></div>
+    <div style="margin-top:18px"><button class="btn btn--primary" id="srvGo" style="width:100%">Connect</button></div>
+    <div class="err" id="srvErr"></div>
+  </div>
+</div>
+
+<!-- ══════════ SIGN IN ══════════ -->
+<div class="gate hidden" id="gate">
+  <div class="stars"></div><div class="orb"></div>
+  <div class="gate__card">
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAAB/CAYAAAAn+soHAAAK6klEQVR42u2da6wdVRXHf2vOuTS9txSLrS0BiYAkoEkbSqpEYgjSIPhABdSED0RFrfGLIZpoKmj8oglBGhXRxBgag6LYgCVIo0hDY9Wm0QYDFGwoKFRaC/QBfd3ec2b5Ya/d7k7nPKbtvfc81j+ZzLlz5sydvdd/rb3Wmtlri6r+GMiAHLgAeD9wCBACJoBR4Dsicqeq1kSkSR8h3rOqfgj4sLU1s7ZeUGhv/O46EVnfj+2tgjrw5ZLjo2n/WeeM9nE7M6AJXNFFeyNOYwhQBxomYLWOyuxzRAMYGZD27rP2NKztZe2NhG8OCwHqJcel5LMOUHu10G4pIUA2DASo0sih0IhhQ+Zd4ARwOAEcTgCHE8DhBHA4ARxOAIcTwOEEcDgBHE4AhxPA4QRwOAEcTgCHE8DhBHA4ARxOAIcTwOEEcDgBHE4AhxPA0Z+o99LNqGqcoiXd/kRE1MXYRwQwIUsiZEmEGaefaYXrZYkl07g5MXqEACbwI0ONCVnbCPMM20Y4OlHzdLvGAUK9gqZ93ici+whz+ovXqlUlkxNgEoRuAm8m340B7wRm234xcJYJ/Czb5lM+JT0KswnsBXap6n+A3cDzwF+Al4Cn06IOqnqaquYu7kkmgGmwpEJX1dnAZcBFwFLgYhN8O8Tf1wrHJbnvt9p2YeGcBrBZVTcBfwDWi8g2uxef4TwZBDBzqyKS29+zgKuBa4FrgHNKfpabRueJCZ9h+yj4CWAceB3YDuw0EswmVPWYbyQYK7RpoW2fAXar6nrgXmBWRSfTCdCFxkczj6peCnwWuAFYUBB2njh/kpjz1NRHU74O2Az8FXgVOAzsTx07+9+jRoaLgEVmYS4DzrTT9pvQP2rbeC9GP31HgDjGJ4K/mlB75yOJ9uYcW20jSzQ+S8570QS+BlgnIv/rgnC5WZt9tr0CrAVWqOoC4NPA58wK5MAbRoZ5iS/RyQpIjFiS8HTKMGVRjHbGhO2XR4cq+e1CVV1dcn5eOJaraiP5+4Cq/k5VrzcfoXhPddsyVZW4pQQsbDU7XwrXuFVVD9n/PJR8boem7a/ogbxIZu0YSftjuixAZiXTDqvqXGA58CVgZqLtWeGaas5c3TT+v8DPgV+IyNaCDyFAU0RURBoVtaNZsE41u8YKVd0APAzMrdg3s8yXGbHrayF/kTqmWhJythOUFobHWKzrUJLHiFYub2GBa7HfT8ZaVCGAWq29TwB3JJ58mbeeHq9baHYncJ+I7C7E6fmprMNnndGwTqqLyN/snn9v/oB0EE7MWay0Dh4pDBvSpZA7aWqMdCYSIhyp2KaqrwEvmE+0F3gZ2ATsEJE9dm6pE16pv1S1E3tiSbVv2nj7g8RDr5c0NNX6cWAFcJeIvBpNswk9nyIzGotEPg58oA1hW+FNji0iqSWRTNpXrTS9aB1GLcFVBQ2TwUbg7xbmbhSRQydKhG4IELETeFtBwGWhXdSgNcDXReSpRPDNqU7RRscReAi4rgsCxDbcAdxvUYgmDmyzoMWp+Z8oCLyMAHGofIsNS/Ps87kWMp9vuY1IujRyKbvvp4HfAA+IyJaU9KfKCSw6c60Qnbz9qvrV2PFF52w6HCnbP1y4z05O4JJput8xVV2sqt9S1X8V7quZONRFZ3u/qv5IVc9PHOUscSblZAnQjfCfV9X3FG9guj1p26+uSICliRcuk7RlSQRTK/aXqs5S1ZtVdV1JX6f3mx7bo6q3pUNgMYo6GQvQLkx8QlXPtmv2TGnZkyDAlQVndaru9wgxCsevMQWLbSgLtSeSv/+YWIPaqRoCWgl/VRT6VHfYoBGghAy1qL2qOl9Vf9nBKqdEeCmxyLVTTYDYkY+q6oxeFH6/E6DkeUv8/AUz9XmboTmSYJ+qLm3VlhMdo3PzSDcCN4jIuKpmg1xXf7phoayoal1EfgZcb2FhMdpIczxNwoOyVap6iV2jdrIEiA91dgM3ichBCzv8efsUPB8QkYaqjojIWmBZ8oyljAQ1I8EZwIOqOg/IU2ezKgE0SWTcLCJbB31FjR4lwoRZgnstQZeVJKVSEjSAdwB3Wx5GTpQAMUnygIg8Yjfhwp8eNK3/vws8mmh7q5R/A/iUqn4yHQqyitof38tbbp6pm/1pHA7Mhxfg9kQ+rTKt8bvvqerpNhRIVlH7BbjHnuRlPu5Pv2NoctgE/DYZCloRIC4M9kUjUC07Ae3/ibHO37btnVBXgG8THhS1swJRbstUdRRoZhW1/zEReSGQz7W/x6zAc4Sng+0WvIpW4ELgWhGpnKt/KJnY4eghHphcHk80vZ01V+DGKk5gRnjU+aTPuOlJ5CaXJ8zbbyfX+PbVlap6ZjcEiOZ/K/Cse/+96gaoEN4gesbklXfwA+YD7+uGAFHjt4nIYRv/3Qr0XkiYicg4IT1PByc9Jo2uquID7OhifHFMP7Z0wxnbLq5iAXZ63/YFdnRJAIB3V7EAe7xv+wI7KxBgQdVMoKP3cbDCUF2vQgAvJ9PjkYDt3yAkgjK6yNb64tEDFAzYfsxi/W7mP7pWDyBmVhmynQCDhzkVzh13Agwezq7gL7ziBBg8nFshotvsBBi8KGBhhfOf8lIpgyD58Ep+rqrnAO/twr+Lr4avdQswICGgPQ28nDDlvNkmBIyWYjuwyQkwKAwITwSvovUcgYiYz/mTiLzuBBgA8094w3cuoUiX0L7+QZT5rzwPMDDKLwrcSqiy2s78x5d7ngHWVn0t3NGb2q+q+nZCmb68g1LH9PBd9nJP5gTob8S5Gd8glJnRDtqfEUrK3B9f7XMC9K/2122i6MeBzxNeBu1U+0iA20TkoJFHPQ/Qn8IfsQmilwP3UV5ZPUWs9PZTEVmdTuh1C9Cfmj+hqucRpoONtTH9SqizXCfUGPxajBqKIYGjDxw+VRUz+5cCjyRef9bG7J9GKNR5o4jsT3IGToA+EnzdSseqqn4F+DPwLtrXPIw+wQ7gYyLyYkwZpye5D9CbQo8V1mPVz9wqft1NWIMhanethdbH+sPPmuZvjk5j8eQ67d8cifVrYbheCu2UTj2VgoZj11GI1VRjKf5FwC3ATYTFMaLJz0ruuWEOYQasApaJyK5Wwo8EaDcMpNW/x4aIAALMtPK2tUmqdKocndOnBWKMEfL6twAf5OhKKkWTn5awrZvwtwG3i8jKOIS0q75etx+UJQy2AY+ZE1EjLMgw6JYgetP/ADZYxzUm2QrMIKxwcgnhad4iYAmhLjOJ4KPWp7WA4kTPjLCszj3AD0XktUjaTtP464TiQcd1QqvaP0MwLzAnvFXzfVXdQijWLKnWdrCYRUuS9vVsQnHoEbOoc0zQ59l3KSY4WpgjKwwVqaw2AL8m1G3aYaTqunBX2yJPZgKPdMwQFIWIT9LmEdY+mk6UJXcOAP8GnrMw8J9WHibKq0bF9RdaVvLuZuWOAcUaC50mi+zFsvFFSxHN/JvALsIqIi+bR78X2B7XB0gcyZo5jz53oyyOtn2nUrGx5OriPmhTray6+InA8wDHY070/umd2VBppKCnUtOdAMejaelWHQaT6qngIYcTwAngcAI4nAAOJ4DDCeBwAjicAA4ngMMJ4HACOJwADieAwwngcAI4nAAOJ4DDCeBwAjicAA4ngMMJ4HACOJwADieAwwngcAI4nAAOJ4DDCeDoFwxTfYCcUPCh1YIKXS216gToX4wSqn7U3CoOFwFiaZWVwJOE5dWXAAs4WgNQOFpPf3fhdwON/wMenzUEQD61XgAAAABJRU5ErkJggg==" alt="HostPro" style="height:52px;width:auto;display:block;margin-bottom:20px">
+    <span class="badge-duo"><span class="badge badge--accent">HostPro</span><span>Operations OS</span></span>
+    <h1>Sign in</h1>
+    <p class="lead">Admins, onsite managers and team members all sign in here. You get the right access automatically.</p>
+    <div class="f"><label for="inUser">Name</label><select id="inUser"></select></div>
+    <div class="f" style="margin-top:14px"><label for="inPass">Password</label>
+      <input id="inPass" type="password" placeholder="Your password" autocomplete="current-password"></div>
+    <div style="margin-top:20px"><button class="btn btn--primary" id="inGo" style="width:100%">Sign in</button></div>
+    <div class="err" id="inErr"></div>
+    <div style="margin-top:16px;text-align:center"><button class="mini" id="srvChange">Change workspace link</button></div>
+  </div>
+</div>
+
+<!-- ══════════ APP ══════════ -->
+<div id="app" class="hidden">
+<header class="nav">
+  <div class="nav__in">
+    <span class="logo"><img class="logo__mark" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAAB/CAYAAAAn+soHAAAK6klEQVR42u2da6wdVRXHf2vOuTS9txSLrS0BiYAkoEkbSqpEYgjSIPhABdSED0RFrfGLIZpoKmj8oglBGhXRxBgag6LYgCVIo0hDY9Wm0QYDFGwoKFRaC/QBfd3ec2b5Ya/d7k7nPKbtvfc81j+ZzLlz5sydvdd/rb3Wmtlri6r+GMiAHLgAeD9wCBACJoBR4Dsicqeq1kSkSR8h3rOqfgj4sLU1s7ZeUGhv/O46EVnfj+2tgjrw5ZLjo2n/WeeM9nE7M6AJXNFFeyNOYwhQBxomYLWOyuxzRAMYGZD27rP2NKztZe2NhG8OCwHqJcel5LMOUHu10G4pIUA2DASo0sih0IhhQ+Zd4ARwOAEcTgCHE8DhBHA4ARxOAIcTwOEEcDgBHE4AhxPA4QRwOAEcTgCHE8DhBHA4ARxOAIcTwOEEcDgBHE4AhxPA0Z+o99LNqGqcoiXd/kRE1MXYRwQwIUsiZEmEGaefaYXrZYkl07g5MXqEACbwI0ONCVnbCPMM20Y4OlHzdLvGAUK9gqZ93ici+whz+ovXqlUlkxNgEoRuAm8m340B7wRm234xcJYJ/Czb5lM+JT0KswnsBXap6n+A3cDzwF+Al4Cn06IOqnqaquYu7kkmgGmwpEJX1dnAZcBFwFLgYhN8O8Tf1wrHJbnvt9p2YeGcBrBZVTcBfwDWi8g2uxef4TwZBDBzqyKS29+zgKuBa4FrgHNKfpabRueJCZ9h+yj4CWAceB3YDuw0EswmVPWYbyQYK7RpoW2fAXar6nrgXmBWRSfTCdCFxkczj6peCnwWuAFYUBB2njh/kpjz1NRHU74O2Az8FXgVOAzsTx07+9+jRoaLgEVmYS4DzrTT9pvQP2rbeC9GP31HgDjGJ4K/mlB75yOJ9uYcW20jSzQ+S8570QS+BlgnIv/rgnC5WZt9tr0CrAVWqOoC4NPA58wK5MAbRoZ5iS/RyQpIjFiS8HTKMGVRjHbGhO2XR4cq+e1CVV1dcn5eOJaraiP5+4Cq/k5VrzcfoXhPddsyVZW4pQQsbDU7XwrXuFVVD9n/PJR8boem7a/ogbxIZu0YSftjuixAZiXTDqvqXGA58CVgZqLtWeGaas5c3TT+v8DPgV+IyNaCDyFAU0RURBoVtaNZsE41u8YKVd0APAzMrdg3s8yXGbHrayF/kTqmWhJythOUFobHWKzrUJLHiFYub2GBa7HfT8ZaVCGAWq29TwB3JJ58mbeeHq9baHYncJ+I7C7E6fmprMNnndGwTqqLyN/snn9v/oB0EE7MWay0Dh4pDBvSpZA7aWqMdCYSIhyp2KaqrwEvmE+0F3gZ2ATsEJE9dm6pE16pv1S1E3tiSbVv2nj7g8RDr5c0NNX6cWAFcJeIvBpNswk9nyIzGotEPg58oA1hW+FNji0iqSWRTNpXrTS9aB1GLcFVBQ2TwUbg7xbmbhSRQydKhG4IELETeFtBwGWhXdSgNcDXReSpRPDNqU7RRscReAi4rgsCxDbcAdxvUYgmDmyzoMWp+Z8oCLyMAHGofIsNS/Ps87kWMp9vuY1IujRyKbvvp4HfAA+IyJaU9KfKCSw6c60Qnbz9qvrV2PFF52w6HCnbP1y4z05O4JJput8xVV2sqt9S1X8V7quZONRFZ3u/qv5IVc9PHOUscSblZAnQjfCfV9X3FG9guj1p26+uSICliRcuk7RlSQRTK/aXqs5S1ZtVdV1JX6f3mx7bo6q3pUNgMYo6GQvQLkx8QlXPtmv2TGnZkyDAlQVndaru9wgxCsevMQWLbSgLtSeSv/+YWIPaqRoCWgl/VRT6VHfYoBGghAy1qL2qOl9Vf9nBKqdEeCmxyLVTTYDYkY+q6oxeFH6/E6DkeUv8/AUz9XmboTmSYJ+qLm3VlhMdo3PzSDcCN4jIuKpmg1xXf7phoayoal1EfgZcb2FhMdpIczxNwoOyVap6iV2jdrIEiA91dgM3ichBCzv8efsUPB8QkYaqjojIWmBZ8oyljAQ1I8EZwIOqOg/IU2ezKgE0SWTcLCJbB31FjR4lwoRZgnstQZeVJKVSEjSAdwB3Wx5GTpQAMUnygIg8Yjfhwp8eNK3/vws8mmh7q5R/A/iUqn4yHQqyitof38tbbp6pm/1pHA7Mhxfg9kQ+rTKt8bvvqerpNhRIVlH7BbjHnuRlPu5Pv2NoctgE/DYZCloRIC4M9kUjUC07Ae3/ibHO37btnVBXgG8THhS1swJRbstUdRRoZhW1/zEReSGQz7W/x6zAc4Sng+0WvIpW4ELgWhGpnKt/KJnY4eghHphcHk80vZ01V+DGKk5gRnjU+aTPuOlJ5CaXJ8zbbyfX+PbVlap6ZjcEiOZ/K/Cse/+96gaoEN4gesbklXfwA+YD7+uGAFHjt4nIYRv/3Qr0XkiYicg4IT1PByc9Jo2uquID7OhifHFMP7Z0wxnbLq5iAXZ63/YFdnRJAIB3V7EAe7xv+wI7KxBgQdVMoKP3cbDCUF2vQgAvJ9PjkYDt3yAkgjK6yNb64tEDFAzYfsxi/W7mP7pWDyBmVhmynQCDhzkVzh13Agwezq7gL7ziBBg8nFshotvsBBi8KGBhhfOf8lIpgyD58Ep+rqrnAO/twr+Lr4avdQswICGgPQ28nDDlvNkmBIyWYjuwyQkwKAwITwSvovUcgYiYz/mTiLzuBBgA8094w3cuoUiX0L7+QZT5rzwPMDDKLwrcSqiy2s78x5d7ngHWVn0t3NGb2q+q+nZCmb68g1LH9PBd9nJP5gTob8S5Gd8glJnRDtqfEUrK3B9f7XMC9K/2122i6MeBzxNeBu1U+0iA20TkoJFHPQ/Qn8IfsQmilwP3UV5ZPUWs9PZTEVmdTuh1C9Cfmj+hqucRpoONtTH9SqizXCfUGPxajBqKIYGjDxw+VRUz+5cCjyRef9bG7J9GKNR5o4jsT3IGToA+EnzdSseqqn4F+DPwLtrXPIw+wQ7gYyLyYkwZpye5D9CbQo8V1mPVz9wqft1NWIMhanethdbH+sPPmuZvjk5j8eQ67d8cifVrYbheCu2UTj2VgoZj11GI1VRjKf5FwC3ATYTFMaLJz0ruuWEOYQasApaJyK5Wwo8EaDcMpNW/x4aIAALMtPK2tUmqdKocndOnBWKMEfL6twAf5OhKKkWTn5awrZvwtwG3i8jKOIS0q75etx+UJQy2AY+ZE1EjLMgw6JYgetP/ADZYxzUm2QrMIKxwcgnhad4iYAmhLjOJ4KPWp7WA4kTPjLCszj3AD0XktUjaTtP464TiQcd1QqvaP0MwLzAnvFXzfVXdQijWLKnWdrCYRUuS9vVsQnHoEbOoc0zQ59l3KSY4WpgjKwwVqaw2AL8m1G3aYaTqunBX2yJPZgKPdMwQFIWIT9LmEdY+mk6UJXcOAP8GnrMw8J9WHibKq0bF9RdaVvLuZuWOAcUaC50mi+zFsvFFSxHN/JvALsIqIi+bR78X2B7XB0gcyZo5jz53oyyOtn2nUrGx5OriPmhTray6+InA8wDHY070/umd2VBppKCnUtOdAMejaelWHQaT6qngIYcTwAngcAI4nAAOJ4DDCeBwAjicAA4ngMMJ4HACOJwADieAwwngcAI4nAAOJ4DDCeBwAjicAA4ngMMJ4HACOJwADieAwwngcAI4nAAOJ4DDCeDoFwxTfYCcUPCh1YIKXS216gToX4wSqn7U3CoOFwFiaZWVwJOE5dWXAAs4WgNQOFpPf3fhdwON/wMenzUEQD61XgAAAABJRU5ErkJggg==" alt="HostPro"> HostPro OS</span>
+    <nav class="nav__links" id="navMain"></nav>
+    <div class="nav__right">
+      <span class="sync" id="sync"><span class="sync__dot"></span><span id="syncTxt">Starting</span></span>
+      <span class="who"><span id="whoName">—</span><span class="who__dot" id="whoInit">?</span></span>
+    </div>
+  </div>
+</header>
+<div class="subnav"><div class="subnav__in" id="navSub"></div></div>
+
+<main>
+
+<!-- ═════ OVERVIEW ═════ -->
+<section class="page on" id="pg-dash">
+  <div id="dashAlerts"></div>
+  <div class="stats" id="dashStats"></div>
+  <div class="row2">
+    <div class="panel panel__glow"><h2>Manager scorecard</h2>
+      <div class="desc">Built from Slack threads, not from anyone counting by hand. A reply from the accountable person inside the thread is what counts.</div>
+      <div class="scroll"><table id="dScore"></table></div></div>
+    <div class="panel panel__glow"><h2>Open tasks</h2>
+      <div class="desc">Most urgent first.</div>
+      <div class="scroll"><table id="dTasks"></table></div></div>
+  </div>
+  <div class="row2">
+    <div class="panel"><h2>Needs a reply now</h2>
+      <div class="desc">Reported over 24 hours ago with nobody accountable having answered.</div>
+      <div class="scroll"><table id="dStale"></table></div></div>
+    <div class="panel"><h2>Worst properties this month</h2>
+      <div class="desc">Highest issue volume — where the operational cost is actually landing.</div>
+      <div class="scroll"><table id="dProps"></table></div></div>
+  </div>
+  <div class="panel" id="dMoneyPanel"><h2>Portfolio position</h2>
+    <div class="desc">Bookings, refunds and expenses for the selected month, by owner.</div>
+    <div class="scroll"><table id="dOwner"></table></div></div>
+
+  <!-- Lives on Overview because it is the one page everybody can reach.
+       It was on Settings, which is admin-only, so managers and staff had
+       no way to sign out at all. -->
+  <div class="panel"><h2>Your session</h2>
+    <div class="desc" id="whoInfo">—</div>
+    <div class="head" style="margin-top:6px">
+      <button class="btn btn--ghost btn--sm" id="btnOut">Sign out</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═════ ISSUES ═════ -->
+<section class="page" id="pg-issues">
+  <div class="stats" id="issStats"></div>
+  <div class="note" id="issNote"></div>
+  <div class="panel panel__glow"><h2>Manager response scorecard</h2>
+    <div class="desc">The same response-rate metric your monthly manager reports use, computed straight from Slack.</div>
+    <div class="scroll"><table id="issScore"></table></div></div>
+  <div class="panel"><div class="head"><h2>Month by month</h2>
+      <button class="btn btn--ghost btn--sm spacer" data-exp="issue_months">Export</button></div>
+    <div class="desc">Every month on record, newest first. Tap a row to jump to it.</div>
+    <div class="scroll"><table id="issTrend"></table></div></div>
+  <div class="row2">
+    <div class="panel"><h2>By category</h2><div class="desc">What onsite teams actually deal with.</div>
+      <div class="scroll"><table id="issCat"></table></div></div>
+    <div class="panel"><h2>By property</h2><div class="desc">Highest volume first.</div>
+      <div class="scroll"><table id="issProp"></table></div></div>
+  </div>
+  <div class="panel">
+    <div class="head"><h2>Reported issues</h2>
+      <input class="search spacer" id="issSearch" placeholder="Search text, property, reporter…">
+      <select class="pick" id="issMgr"><option value="">All managers</option></select>
+      <select class="pick" id="issState"><option value="">Open and closed</option><option>Open</option><option>Closed</option></select>
+      <select class="pick" id="issStat"><option value="">Any stage</option><option>Open</option>
+        <option>Acknowledged</option><option>Escalated</option><option>In Progress</option><option>Resolved</option></select>
+      <select class="pick" id="issOut"><option value="">Any outcome</option><option>Issue resolved</option>
+        <option>Relocated</option><option>Discount offered on future stay</option>
+        <option>Compensation</option><option>Refunded</option></select>
+      <select class="pick" id="issSev"><option value="">Any severity</option><option>Major</option><option>Moderate</option><option>Minor</option></select>
+      <button class="btn btn--ghost btn--sm" data-exp="Issues">Export</button></div>
+    <div class="scroll"><table id="issTbl"></table></div></div>
+</section>
+
+<!-- ═════ TASKS ═════ -->
+<section class="page" id="pg-tasks">
+  <div class="panel panel__glow hidden" id="taskAdd"><h2>Assign a task</h2>
+    <div class="desc">Admins assign. The person it belongs to moves it along as they work.</div>
+    <div class="grid g4">
+      <div class="f" style="grid-column:span 2"><label>Task</label><input id="tTask" placeholder="What needs doing"></div>
+      <div class="f"><label>Assign to</label><select id="tWho"></select></div>
+      <div class="f"><label>Category</label><select id="tCat">
+        <option>Operations</option><option>Maintenance</option><option>Guest Communication</option>
+        <option>Revenue &amp; Pricing</option><option>HostPro Coordination</option><option>Other</option></select></div>
+      <div class="f"><label>Priority</label><select id="tPri"><option>P1 (Urgent)</option><option>P2 (High)</option><option>P3 (Normal)</option></select></div>
+      <div class="f"><label>Deadline date</label><input id="tDue" type="date"></div>
+      <div class="f"><label>Deadline time</label><input id="tDueT" type="time"></div>
+      <div class="f"><label>Status</label><select id="tStat"><option>Pending</option><option>In Progress</option><option>Done</option></select></div>
+      <div class="f" style="grid-column:1/-1"><label>Notes</label><input id="tNote"></div>
+    </div>
+    <div style="margin-top:18px"><button class="btn btn--primary" id="tAdd">Assign task</button></div>
+  </div>
+  <div class="stats" id="tStats"></div>
+  <div class="panel"><div class="head"><h2>Tasks</h2>
+      <input class="search spacer" id="tSearch" placeholder="Search tasks, people, notes…">
+      <select class="pick" id="tfWho"><option value="">Everyone</option></select>
+      <select class="pick" id="tfStat"><option value="">Any status</option><option>Pending</option><option>In Progress</option><option>Done</option></select>
+      <button class="btn btn--ghost btn--sm" data-exp="Tasks">Export</button></div>
+    <div class="scroll"><table id="tTbl"></table></div></div>
+</section>
+
+<!-- ═════ CHECKLISTS ═════ -->
+<section class="page" id="pg-check">
+  <div class="stats" id="clStats"></div>
+  <div class="panel panel__glow"><h2>My checklist — today</h2>
+    <div class="desc">Tick each one as you finish it. It clears itself at midnight. Only you can tick your own.</div>
+    <div class="scroll"><table id="clMine"></table></div></div>
+  <div class="panel hidden" id="clAdmin"><h2>Manage daily checklists</h2>
+    <div class="desc">Admins only. A daily task appears on that person's list every day until you remove it.</div>
+    <div class="grid g4">
+      <div class="f"><label>Person</label><select id="clWho"></select></div>
+      <div class="f" style="grid-column:span 3"><label>Daily task</label><input id="clTask" placeholder="e.g. Morning property walkthrough"></div>
+    </div>
+    <div style="margin-top:16px"><button class="btn btn--primary" id="clAdd">Add daily task</button></div>
+    <div class="scroll" style="margin-top:18px"><table id="clItems"></table></div></div>
+  <div class="panel"><h2>Team checklist — today</h2>
+    <div class="desc">Live view of everyone's day.</div>
+    <div class="scroll"><table id="clTeam"></table></div></div>
+  <div class="panel"><div class="head"><h2>Completion log</h2>
+      <button class="btn btn--ghost btn--sm spacer" data-exp="CheckDone">Export</button></div>
+    <div class="scroll"><table id="clLog"></table></div></div>
+</section>
+
+<!-- ═════ CLOCK-IN ═════ -->
+<section class="page" id="pg-clock">
+  <div class="stats" id="ciStats"></div>
+  <div class="panel panel__glow"><h2>Clock in</h2>
+    <div class="desc" id="ciMsg">—</div>
+    <button class="btn btn--primary" id="ciNow">Clock in now</button>
+    <div class="desc" style="margin:14px 0 0">The time comes from the server, so the clock is the same for everyone regardless of what their phone says.</div>
+  </div>
+  <div class="panel"><div class="head"><h2>Clock-in log</h2>
+      <select class="pick spacer" id="ciWho"><option value="">Everyone</option></select>
+      <button class="btn btn--ghost btn--sm" data-exp="ClockIns">Export</button></div>
+    <div class="scroll"><table id="ciTbl"></table></div></div>
+</section>
+
+<!-- ═════ GUEST FEEDBACK ═════ -->
+<section class="page" id="pg-guest">
+  <div class="stats" id="gfStats"></div>
+  <div class="panel panel__glow hidden" id="gfAdd"><h2>Log guest feedback</h2>
+    <div class="desc">Complaints, reviews and satisfaction issues, tied to a property and whoever was responsible.</div>
+    <div class="grid g4">
+      <div class="f"><label>Date</label><input id="gfDate" type="date"></div>
+      <div class="f"><label>Property</label><select id="gfProp"></select></div>
+      <div class="f"><label>Responsible</label><select id="gfWho"></select></div>
+      <div class="f"><label>Rating</label><select id="gfRate"><option>5 Star</option><option>4 Star</option><option>3 Star</option><option>2 Star</option><option>1 Star</option></select></div>
+      <div class="f"><label>Issue area</label><select id="gfArea"><option>Cleanliness</option><option>Maintenance</option><option>Communication</option><option>Amenities</option><option>Check-in</option><option>Other</option></select></div>
+      <div class="f" style="grid-column:span 3"><label>Resolution</label><input id="gfRes"></div>
+      <div class="f" style="grid-column:1/-1"><label>Feedback</label><textarea id="gfText"></textarea></div>
+    </div>
+    <div style="margin-top:18px"><button class="btn btn--primary" id="gfSave">Log feedback</button></div>
+  </div>
+  <div class="panel"><div class="head"><h2>Guest feedback</h2>
+      <button class="btn btn--ghost btn--sm spacer" data-exp="GuestFeedback">Export</button></div>
+    <div class="scroll"><table id="gfTbl"></table></div></div>
+</section>
+
+<!-- ═════ DIRECTORY ═════ -->
+<section class="page" id="pg-people">
+  <div class="stats" id="peStats"></div>
+  <div class="panel panel__glow hidden" id="peAdd"><h2>Add someone</h2>
+    <div class="desc">Admins run HostPro. Managers cover properties. Staff work under a manager.</div>
+    <div class="grid g4">
+      <div class="f"><label>Name</label><input id="peName"></div>
+      <div class="f"><label>Access</label><select id="peRole"><option>Staff</option><option>Manager</option><option>Admin</option></select></div>
+      <div class="f"><label>Title / position</label><input id="peTitle" placeholder="e.g. Cleaner, COO"></div>
+      <div class="f"><label>Organisation</label><select id="peOrg"><option>Sky Suites</option><option>HostPro</option></select></div>
+      <div class="f"><label>Reports to</label><select id="peBoss"></select></div>
+      <div class="f"><label>Contact</label><input id="peContact"></div>
+      <div class="f"><label>Base salary</label><input id="peSalary" type="number" min="0"></div>
+      <div class="f"><label>Currency</label><select id="peCur"><option>GHS</option><option>PKR</option><option>USD</option></select></div>
+      <div class="f hidden" id="pePwWrap"><label>Password</label><input id="pePw" placeholder="Their sign-in password"></div>
+      <div class="f hidden" id="peNoPw"><label>Password</label><div class="hint" style="margin-top:0">Set from Admin › Logins by the HostPro account once they are added.</div></div>
+      <div class="f"><label>Holds field funds?</label><select id="peFund"><option value="">No</option><option value="Yes">Yes</option></select></div>
+    </div>
+    <div style="margin-top:18px"><button class="btn btn--primary" id="peSave">Add to the team</button></div>
+  </div>
+  <div class="panel"><div class="head"><h2>Directory</h2>
+      <input class="search spacer" id="peSearch" placeholder="Search name, role, property…">
+      <select class="pick" id="peFilter"><option value="">Everyone</option><option>Admin</option><option>Manager</option><option>Staff</option></select>
+      <button class="btn btn--ghost btn--sm" data-exp="People">Export</button></div>
+    <div class="scroll"><table id="peTbl"></table></div></div>
+</section>
+
+<!-- ═════ PERFORMANCE ═════ -->
+<section class="page" id="pg-perf">
+  <div class="panel" id="rfPanel"><h2>Red flags</h2>
+    <div class="desc">Raised automatically — a task that passed its deadline unfinished, or a checklist
+      item not ticked by the end of the day. Nobody can add or remove one by hand.</div>
+    <div class="scroll"><table id="rfTbl"></table></div></div>
+  <div class="panel panel__glow hidden" id="pfAdd"><h2>Log performance</h2>
+    <div class="desc">Ratings feed the incentive figures and the monthly reviews.</div>
+    <div class="grid g4">
+      <div class="f"><label>Date</label><input id="pfDate" type="date"></div>
+      <div class="f"><label>Person</label><select id="pfWho"></select></div>
+      <div class="f"><label>Area</label><select id="pfCat">
+        <option>Operations</option><option>Guest Satisfaction</option><option>HostPro Coordination</option>
+        <option>Pricing &amp; Revenue</option><option>Punctuality</option><option>Quality of Work</option><option>Teamwork</option></select></div>
+      <div class="f"><label>Rating</label><select id="pfRate"><option>Excellent</option><option>Good</option><option>Average</option><option>Below Average</option><option>Poor</option></select></div>
+      <div class="f" style="grid-column:1/-1"><label>Notes</label><input id="pfNote" placeholder="Specific observations"></div>
+    </div>
+    <div style="margin-top:18px"><button class="btn btn--primary" id="pfSave">Log performance</button></div>
+  </div>
+  <div class="panel"><h2>Rating summary</h2>
+    <div class="desc">Everyone rated in the selected month, best average first.</div>
+    <div class="scroll"><table id="pfSum"></table></div></div>
+  <div class="panel"><div class="head"><h2>Performance log</h2>
+      <select class="pick spacer" id="pfFilter"><option value="">Everyone</option></select>
+      <button class="btn btn--ghost btn--sm" data-exp="Performance">Export</button></div>
+    <div class="scroll"><table id="pfTbl"></table></div></div>
+</section>
+
+<!-- ═════ MISTAKES ═════ -->
+<section class="page" id="pg-mistakes">
+  <div class="stats" id="msStats"></div>
+  <div class="panel panel__glow hidden" id="msAdd"><h2>Log a mistake</h2>
+    <div class="desc">Operational errors, coordination failures, anything that reached a guest. These drive deductions.</div>
+    <div class="grid g4">
+      <div class="f"><label>Date</label><input id="msDate" type="date"></div>
+      <div class="f"><label>Person</label><select id="msWho"></select></div>
+      <div class="f"><label>Manager</label><select id="msMgr"></select></div>
+      <div class="f"><label>Area</label><select id="msArea">
+        <option>Operations</option><option>Guest Satisfaction</option><option>HostPro Coordination</option>
+        <option>Pricing &amp; Revenue</option><option>Maintenance</option><option>Cleanliness</option><option>Other</option></select></div>
+      <div class="f"><label>Severity</label><select id="msSev"><option>Minor</option><option>Moderate</option><option>Major</option></select></div>
+      <div class="f"><label>Impact</label><select id="msImpact"><option>No impact</option><option>Minor impact</option><option>Significant impact</option><option>Major impact</option></select></div>
+      <div class="f" style="grid-column:span 2"><label>Action taken</label><input id="msAction" placeholder="Warning, retraining, deduction…"></div>
+      <div class="f" style="grid-column:1/-1"><label>What happened</label><textarea id="msText"></textarea></div>
+    </div>
+    <div style="margin-top:18px"><button class="btn btn--primary" id="msSave">Log mistake</button></div>
+  </div>
+  <div class="panel"><div class="head"><h2>Mistake log</h2>
+      <input class="search spacer" id="msSearch" placeholder="Search person, area, detail…">
+      <button class="btn btn--ghost btn--sm" data-exp="Mistakes">Export</button></div>
+    <div class="scroll"><table id="msTbl"></table></div></div>
+</section>
+
+<!-- ═════ INCENTIVES ═════ -->
+<section class="page" id="pg-incentives">
+  <div id="incWall" class="hidden"><div class="wall"><span class="badge">Restricted</span>
+    <h2>Admins only</h2><p>Salaries, bonuses and deductions are visible to admins.</p></div></div>
+  <div id="incBody">
+    <div class="panel panel__glow"><h2>Add a bonus or deduction</h2>
+      <div class="desc">Adjustments against base salary, driven by performance and logged mistakes.</div>
+      <div class="grid g4">
+        <div class="f"><label>Person</label><select id="icWho"></select></div>
+        <div class="f"><label>Type</label><select id="icType"><option>Bonus</option><option>Deduction</option></select></div>
+        <div class="f"><label>Amount</label><input id="icAmt" type="number" step="0.01"></div>
+        <div class="f"><label>Reason</label><input id="icReason"></div>
+      </div>
+      <div style="margin-top:18px"><button class="btn btn--primary" id="icSave">Record adjustment</button></div>
+    </div>
+    <div class="panel"><h2>Net position</h2>
+      <div class="desc">Base salary, plus bonuses, minus deductions, for the selected month.</div>
+      <div class="scroll"><table id="icSum"></table></div></div>
+    <div class="panel"><div class="head"><h2>Adjustment log</h2>
+        <button class="btn btn--ghost btn--sm spacer" data-exp="Incentives">Export</button></div>
+      <div class="scroll"><table id="icTbl"></table></div></div>
+  </div>
+</section>
+
+<!-- ═════ BOOKINGS ═════ -->
+<section class="page" id="pg-bookings">
+  <div class="stats" id="bkStats"></div>
+  <div class="note note--warn hidden" id="bkUnlinked"></div>
+  <div class="panel panel__glow hidden" id="bkAdd"><h2>Record a booking</h2>
+    <div class="desc">Every booking lives here, OTA or direct. Pick a direct channel and name who closed it — that is what feeds the direct-booking leaderboard, so nothing gets typed twice.</div>
+    <div class="grid g3">
+      <div class="f"><label>Property</label><select id="bProp"></select></div>
+      <div class="f"><label>Guest</label><input id="bGuest"></div>
+      <div class="f"><label>Booking reference</label><input id="bRef" placeholder="optional"></div>
+      <div class="f"><label>Channel</label><select id="bChan"></select></div>
+      <div class="f"><label>Closed by</label><select id="bBy"></select></div>
+      <div class="f"><label>Paid through</label><select id="bPay"></select>
+        <div class="hint">Stripe deducts 4.5% automatically.</div></div>
+      <div class="f"><label>Check-in</label><input id="bIn" type="date"></div>
+      <div class="f"><label>Check-out</label><input id="bOut" type="date"></div>
+      <div class="f"><label>Nights</label><input id="bNights" readonly class="num"></div>
+      <div class="f"><label>Income (USD)</label><input id="bAmt" type="number" step="0.01"></div>
+      <div class="f"><label>Channel fees (USD)</label><input id="bFees" type="number" step="0.01" value="0"></div>
+      <div class="f"><label>Also received (GHS)</label><input id="bGhs" type="number" step="0.01" placeholder="optional"></div>
+      <div class="f"><label>Stripe fee 4.5%</label><input id="bStripe" readonly class="num"></div>
+      <div class="f"><label>Total (USD)</label><input id="bTotal" readonly class="num"></div>
+      <div class="f"><label>Verification</label><select id="bVer"><option>Un-Verified</option><option>Verified</option></select></div>
+      <div class="f"><label>Payment proof</label><select id="bProof"><option>Payment proof not received</option><option>Payment proof received</option></select></div>
+      <div class="f" style="grid-column:span 2"><label>Notes</label><input id="bNotes"></div>
+    </div>
+    <div style="margin-top:18px"><button class="btn btn--primary" id="bSave">Save booking</button></div>
+  </div>
+  <div class="panel"><div class="head"><h2>Bookings</h2>
+      <input class="search spacer" id="bkSearch" placeholder="Search guest, property, reference…">
+      <select class="pick" id="bkOwner"><option value="">All owners</option></select>
+      <select class="pick" id="bkChan"><option value="">All channels</option></select>
+      <select class="pick" id="bkProof"><option value="">Any proof state</option>
+        <option>Payment proof received</option><option>Payment proof not received</option></select>
+      <select class="pick" id="bkPay"><option value="">All payment channels</option></select>
+      <select class="pick" id="bkVer"><option value="">All statuses</option>
+        <option value="Yes">Verified</option><option value="No">Un-Verified</option></select>
+      <button class="btn btn--ghost btn--sm" data-exp="Income">Export</button></div>
+    <div class="scroll"><table id="bkTbl"></table></div></div>
+  <div class="panel"><h2>Direct booking leaderboard</h2>
+    <div class="desc">Instagram and WhatsApp bookings for the month, by who closed them.</div>
+    <div class="scroll"><table id="bkBoard"></table></div></div>
+</section>
+
+<!-- ═════ EXPENSES ═════ -->
+<section class="page" id="pg-expenses">
+  <div class="stats" id="exStats"></div>
+  <div class="panel panel__glow hidden" id="exAdd"><h2>Record an expense</h2>
+    <div class="desc">Tag the onsite manager and it comes straight off their field-fund balance.</div>
+    <div class="grid g3">
+      <div class="f"><label>Property</label><select id="eProp"></select></div>
+      <div class="f"><label>Date</label><input id="eDate" type="date"></div>
+      <div class="f"><label>Category</label><select id="eCat"></select></div>
+      <div class="f"><label>Paid through</label><select id="ePay"></select></div>
+      <div class="f"><label>Onsite manager</label><select id="eMgr"></select></div>
+      <div class="f"><label>Item</label><input id="eItem" placeholder="e.g. Prepaid electricity top up"></div>
+      <div class="f"><label>Amount (GHS)</label><input id="eGhs" type="number" step="0.01"></div>
+      <div class="f"><label>Rate (GHS per USD)</label><input id="eRate" type="number" step="0.0001"></div>
+      <div class="f"><label>Amount (USD)</label><input id="eUsd" type="number" step="0.01">
+        <div class="hint">Filled in automatically from GHS ÷ rate.</div></div>
+      <div class="f" style="grid-column:1/-1"><label>Notes</label><input id="eNotes"></div>
+    </div>
+    <div style="margin-top:18px"><button class="btn btn--primary" id="eSave">Save expense</button></div>
+  </div>
+  <div class="panel"><div class="head"><h2>Expenses</h2>
+      <input class="search spacer" id="exSearch" placeholder="Search item, category, manager…">
+      <select class="pick" id="exOwner"><option value="">All owners</option></select>
+      <button class="btn btn--ghost btn--sm" data-exp="Expenses">Export</button></div>
+    <div class="scroll"><table id="exTbl"></table></div></div>
+  <div class="panel"><h2>Spend by category</h2>
+    <div class="scroll"><table id="exCat"></table></div></div>
+</section>
+
+<!-- ═════ REFUNDS ═════ -->
+<section class="page" id="pg-refunds">
+  <div class="stats" id="rfStats"></div>
+  <div class="panel"><div class="head"><h2>Refunds sent to guests</h2>
+      <input class="search spacer" id="rfSearch" placeholder="Search guest, property, reason…">
+      <button class="btn btn--ghost btn--sm" data-exp="Refunds">Export</button></div>
+    <div class="desc">Added from the refund button on any booking. Counted in the month they were sent, and taken off profit everywhere it appears.</div>
+    <div class="scroll"><table id="rfTbl"></table></div></div>
+  <div class="panel"><h2>Refunds by owner</h2>
+    <div class="scroll"><table id="rfOwner"></table></div></div>
+</section>
+
+<!-- ═════ MANAGER FUNDS ═════ -->
+<section class="page" id="pg-funds">
+  <div class="panel panel__glow hidden" id="fdAdd"><h2>Send funds to an onsite manager</h2>
+    <div class="desc">Anyone marked as holding field funds in the directory appears here.</div>
+    <div class="grid g3">
+      <div class="f"><label>Manager</label><select id="fMgr"></select></div>
+      <div class="f"><label>Date sent</label><input id="fDate" type="date"></div>
+      <div class="f"><label>Amount (GHS)</label><input id="fGhs" type="number" step="0.01"></div>
+      <div class="f"><label>Rate (GHS per USD)</label><input id="fRate" type="number" step="0.0001"></div>
+      <div class="f"><label>Amount (USD)</label><input id="fUsd" type="number" step="0.01"></div>
+      <div class="f"><label>Notes</label><input id="fNotes" placeholder="e.g. August float via MoMo"></div>
+    </div>
+    <div style="margin-top:18px"><button class="btn btn--primary" id="fSave">Record transfer</button></div>
+  </div>
+  <div class="panel"><h2>Field fund balances</h2>
+    <div class="desc">Spent means expenses tagged to that manager. The balance is all-time: sent minus spent.</div>
+    <div class="scroll"><table id="fdBal"></table></div></div>
+  <div class="panel"><div class="head"><h2>Transfers this month</h2>
+      <button class="btn btn--ghost btn--sm spacer" data-exp="Funds">Export</button></div>
+    <div class="scroll"><table id="fdTbl"></table></div></div>
+</section>
+
+<!-- ═════ REPORTS ═════ -->
+<section class="page" id="pg-reports">
+  <div class="panel panel__glow"><div class="head"><h2>Owner reports</h2>
+      <button class="btn btn--primary btn--sm spacer" id="repAll">Download every owner report</button></div>
+    <div class="desc">One Excel file per owner — summary, bookings, expenses and refunds, covering only their own properties.</div>
+    <div class="scroll"><table id="repTbl"></table></div></div>
+  <div class="panel"><h2>Manager fund reports</h2>
+    <div class="desc">What each onsite manager received and spent, with a running balance.</div>
+    <div class="scroll"><table id="repMgr"></table></div></div>
+  <div class="panel"><div class="head"><h2>Monthly manager pack</h2>
+      <button class="btn btn--ghost btn--sm spacer" id="repPack">Download the pack</button></div>
+    <div class="desc">One workbook covering the selected month: response scorecard, issue log, mistakes, performance, guest feedback and net pay position. This is the pack the monthly review runs off.</div>
+  </div>
+</section>
+
+<!-- ═════ PROPERTIES ═════ -->
+<section class="page" id="pg-props">
+  <div class="stats" id="prStats"></div>
+  <div class="row2">
+    <div class="panel panel__glow"><h2>Add a property</h2>
+      <div class="desc">Use the exact name your team types in Slack — issue matching depends on it.</div>
+      <div class="grid g2">
+        <div class="f"><label>Property name</label><input id="prName" placeholder="e.g. Kass 1203"></div>
+        <div class="f"><label>Cluster</label><input id="prCluster" placeholder="e.g. Kass"></div>
+        <div class="f"><label>Onsite manager</label><select id="prMgr"></select></div>
+        <div class="f"><label>Owner</label><select id="prOwner"></select></div>
+        <div class="f"><label>Units</label><input id="prUnits" type="number" min="1" value="1"></div>
+        <div class="f"><label>Status</label><select id="prStat"><option>Active</option><option>In Review</option><option>Maintenance</option><option>Offboarded</option></select></div>
+        <div class="f" style="grid-column:1/-1"><label>Address</label><input id="prAddr"></div>
+      </div>
+      <div style="margin-top:18px"><button class="btn btn--primary" id="prSave">Add property</button></div></div>
+    <div class="panel"><h2>Owners</h2>
+      <div class="desc">Whose asset it is. An owner sees their own P&amp;L in the reports.</div>
+      <div class="grid g2">
+        <div class="f"><label>Owner name</label><input id="owName" placeholder="e.g. Mohammad Fattal"></div>
+        <div class="f"><label>Contact</label><input id="owContact"></div>
+      </div>
+      <div style="margin-top:16px"><button class="btn btn--ghost" id="owSave">Add owner</button></div>
+      <div class="scroll" style="margin-top:18px"><table id="owTbl"></table></div></div>
+  </div>
+  <div class="panel"><div class="head"><h2>Property registry</h2>
+      <input class="search spacer" id="prSearch" placeholder="Search property, cluster, manager…">
+      <select class="pick" id="prFilter"><option value="">All managers</option></select>
+      <button class="btn btn--ghost btn--sm" data-exp="Properties">Export</button></div>
+    <div class="scroll"><table id="prTbl"></table></div></div>
+</section>
+
+<!-- ═════ LOGINS ═════ -->
+<section class="page" id="pg-logins">
+  <div id="lgWall" class="hidden"><div class="wall"><span class="badge">Restricted</span>
+    <h2>Admins only</h2><p>Passwords and access levels are managed by admins.</p></div></div>
+  <div id="lgBody">
+    <div class="note">Changing a password here takes effect immediately, everywhere. Tell the person separately — the app never notifies anyone. Use <b>Hide passwords</b> before you screen-share.</div>
+    <div class="panel"><div class="head"><h2>Logins and access</h2>
+        <button class="btn btn--ghost btn--sm spacer" id="lgMask">Hide passwords</button>
+        <button class="btn btn--ghost btn--sm" data-exp="logins">Export</button></div>
+      <div class="scroll"><table id="lgTbl"></table></div></div>
+  </div>
+</section>
+
+<!-- ═════ SETTINGS ═════ -->
+<section class="page" id="pg-settings">
+  <div class="row2">
+    <div class="panel"><h2>Booking channels</h2>
+      <div class="head" style="margin:12px 0 0"><input class="search" id="lChan" placeholder="e.g. Airbnb">
+        <button class="btn btn--ghost btn--sm" data-addlist="Channels">Add</button></div>
+      <div id="tagChan" style="margin-top:14px"></div></div>
+    <div class="panel"><h2>Payment channels</h2>
+      <div class="head" style="margin:12px 0 0"><input class="search" id="lPay" placeholder="e.g. MoMo">
+        <button class="btn btn--ghost btn--sm" data-addlist="PayChannels">Add</button></div>
+      <div id="tagPay" style="margin-top:14px"></div>
+      <div class="desc" style="margin-top:14px">“Stripe” is the exact word that triggers the automatic 4.5% fee.</div></div>
+  </div>
+  <div class="panel"><h2>Expense categories</h2>
+    <div class="head" style="margin:12px 0 0"><input class="search" id="lCat" placeholder="e.g. Electricity ⚡️">
+      <button class="btn btn--ghost btn--sm" data-addlist="Categories">Add</button></div>
+    <div id="tagCat" style="margin-top:14px"></div></div>
+  <div class="panel hidden" id="devPanel"><h2>This device</h2>
+    <div class="desc" id="devInfo">—</div>
+    <div class="head" style="margin-top:6px">
+      <button class="btn btn--ghost btn--sm" id="btnBackup">Download a full backup</button>
+      <button class="btn btn--ghost btn--sm" id="btnSlack">Pull Slack now</button>
+      <button class="btn btn--ghost btn--sm" id="btnServer">Change workspace link</button>
+      <button class="btn btn--ghost btn--sm" id="btnDiag">Run diagnostics</button>
+    </div>
+    <pre id="diagOut" class="hidden" style="margin-top:16px;background:#0e0e10;border:1px solid var(--line-strong);
+      border-radius:8px;padding:14px;font-size:12.5px;line-height:1.7;color:#d8d8d8;white-space:pre-wrap;
+      font-family:ui-monospace,Menlo,monospace;overflow-x:auto"></pre>
+    <div class="head" style="margin-top:12px"><button class="btn btn--ghost btn--sm hidden" id="btnCopyDiag">Copy the report</button></div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<!-- ═════ MODALS ═════ -->
+<div id="mEdit" class="modal hidden"><div class="modal__box">
+  <h2 id="mEditTitle">Edit</h2><div id="mEditBody"></div>
+  <div class="modal__foot"><button class="btn btn--primary" id="mEditSave">Save changes</button>
+    <button class="btn btn--ghost" id="mEditCancel">Cancel</button></div>
+  <div class="err" id="mEditErr"></div></div></div>
+
+<div id="mRef" class="modal hidden"><div class="modal__box" style="max-width:620px">
+  <h2 id="mRefTitle">Refund a guest</h2>
+  <div class="note" id="mRefSummary"></div>
+  <div class="grid g2">
+    <div class="f"><label>Date refunded</label><input id="rfDate" type="date"></div>
+    <div class="f"><label>Refund amount (USD)</label><input id="rfAmt" type="number" step="0.01">
+      <div class="hint" id="rfHint"></div></div>
+    <div class="f"><label>Refunded through</label><select id="rfPay"></select></div>
+    <div class="f"><label>Reason</label><select id="rfReason">
+      <option>Cancellation</option><option>Early check-out</option><option>Overbooking</option>
+      <option>Property issue</option><option>Service issue</option><option>Overpayment</option>
+      <option>Double payment</option><option>Goodwill gesture</option><option>Other</option></select></div>
+    <div class="f" style="grid-column:1/-1"><label>Notes</label><input id="rfNotes"></div>
+  </div>
+  <div class="modal__foot"><button class="btn btn--primary" id="rfSave">Record refund</button>
+    <button class="btn btn--ghost" id="rfCancel">Cancel</button></div>
+  <div class="err" id="rfErr"></div></div></div>
+
+<!-- Updating a reported issue. A modal rather than inline dropdowns in the
+     row because the four fields depend on each other — the outcome only
+     exists once the work is resolved — and because the people who actually
+     close these are on phones in a stairwell, not at a desk. -->
+<div id="mIss" class="modal hidden"><div class="modal__box" style="max-width:640px">
+  <h2 id="mIssTitle">Update issue</h2>
+  <div class="note" id="mIssSummary"></div>
+  <div class="grid g2">
+    <div class="f"><label>Is this issue open or closed?</label>
+      <select id="isState"><option>Open</option><option>Closed</option></select>
+      <div class="hint">Closed means the case is finished and needs nothing further.</div></div>
+    <div class="f" id="isStageWrap"><label>Where does it stand?</label>
+      <select id="isStage"><option>Open</option><option>Acknowledged</option><option>Escalated</option>
+        <option>In Progress</option><option>Resolved</option></select>
+      <div class="hint">“Open” means nobody has picked it up yet.</div></div>
+    <div class="f hidden" id="isOutWrap" style="grid-column:1/-1"><label>How was it resolved?</label>
+      <select id="isOut"><option value="">— pick one —</option>
+        <option>Issue resolved</option><option>Relocated</option>
+        <option>Discount offered on future stay</option><option>Compensation</option>
+        <option>Refunded</option></select></div>
+    <div class="f" style="grid-column:1/-1"><label>Notes</label>
+      <textarea id="isNotes" placeholder="What actually happened, what was done, and whether the guest was satisfied."></textarea>
+      <div class="hint" id="isWho"></div></div>
+  </div>
+  <div class="modal__foot"><button class="btn btn--primary" id="isSave">Save update</button>
+    <button class="btn btn--ghost" id="isCancel">Cancel</button></div>
+  <div class="err" id="isErr"></div></div></div>
+
+<div id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════
+   HostPro OS — front end.
+   The Google Sheet is the only source of truth. This holds a read
+   copy and writes back one record at a time, which is why several
+   people can work at once without overwriting each other.
+   ══════════════════════════════════════════════════════════════ */
+"use strict";
+const $ = id => document.getElementById(id);
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = n => (Math.round((Number(n)||0)*100)/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const n0  = n => (Number(n)||0).toLocaleString('en-US');
+const ymNow = () => new Date().toISOString().slice(0,7);
+const dateNow = () => { const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
+function toast(m, ms){ const t=$('toast'); t.textContent=m; t.classList.add('on');
+  clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('on'), ms||3200); }
+
+let AUTH=null, ME=null, D=null, REV=-1, curMonth='all', busy=false, maskPw=true;
+const PROOF_YES='Payment proof received', PROOF_NO='Payment proof not received';
+/* Mirrors WRITE_TIER in Code.gs. Keep the two in step — this one only
+   decides what a button looks like; the server decides what happens. */
+const WRITE = {People:5,Owners:4,Properties:4,Checklist:4,Incentives:4,ClockIns:4,
+  Tasks:4,Issues:4,Performance:4,Mistakes:4,GuestFeedback:4,
+  Income:4,Expenses:4,Refunds:4,Funds:4,CheckDone:1};
+const PRIMARY = 5;
+/* An admin still manages the directory; only the password and the role
+   are out of reach, and both are handled on the server. */
+const canPeople = () => can(4);
+/* Roles that are not onsite staff, for the roster counts and pickers. */
+const TOPROLE = r => r === 'Admin' || r === 'HostPro';
+const can  = lvl => !!ME && ME.level >= lvl;
+const canW = t => can(WRITE[t]||4);
+
+/* ---------- transport ----------
+   Served from Apps Script → its own bridge. Installed as an app → HTTPS to
+   the /exec link. Sent as text/plain deliberately: that keeps it a simple
+   request, so there is no CORS preflight to fail. */
+const HAS_GSR = (typeof google!=='undefined' && google.script && google.script.run);
+/* The workspace this app talks to. Baked in so no one on the team is ever
+   asked for a link — they open it and go straight to signing in. If you ever
+   redeploy to a different script, change it here. */
+const GS_EXEC_URL = 'https://script.google.com/macros/s/AKfycbyC_sOt3Btj-8vnNIT2X_nTqUbm6x0QVkVC8t3GmwHdeOmrZOv8SBDdI03fpyDLklIJsg/exec';
+/* Where the app sends its API calls.
+   Installed Android shell -> straight to Apps Script, because Capacitor
+     makes the request natively and there is no origin to share.
+   Anywhere else (Cloudflare, a laptop, an iPhone home screen) -> the
+     same-origin proxy at /api/exec, so no CORS question ever arises.
+   Served by Apps Script itself -> neither is used; google.script.run
+     takes over and API_URL is ignored. */
+const IS_NATIVE_SHELL = !!(window.Capacitor && window.Capacitor.isNativePlatform
+  && window.Capacitor.isNativePlatform());
+const BAKED_URL = IS_NATIVE_SHELL ? GS_EXEC_URL : '/api/exec';
+let API_URL = '';
+try{ API_URL = localStorage.getItem('hostpro_srv') || ''; }catch(e){}
+if(!API_URL && BAKED_URL) API_URL = BAKED_URL;
+function call(fn){
+  const args = [].slice.call(arguments,1);
+  if(HAS_GSR) return new Promise((res,rej)=>{
+    const r = google.script.run.withSuccessHandler(res).withFailureHandler(rej);
+    r[fn].apply(r, args);
+  });
+  return fetch(API_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify({fn:fn, args:args})}).then(r=>r.json());
+}
+function setSync(state, msg){
+  const el = $('sync');
+  el.className = 'sync' + (state==='ok'?' sync--ok':state==='off'?' sync--off':'');
+  /* On a phone the full sentence has nowhere to go, so a short form is
+     shown instead — a bare coloured dot tells you nothing about whether
+     the app is saving, waiting or offline. The full text stays as the
+     tooltip and on anything wider. */
+  const short = /offline/i.test(msg) ? 'Offline'
+              : /saving/i.test(msg) ? 'Saving'
+              : /loading|starting/i.test(msg) ? 'Loading'
+              : /checking/i.test(msg) ? 'Checking'
+              : /no connection/i.test(msg) ? 'No signal'
+              : /synced/i.test(msg) ? msg.replace(/^Synced\s*/i,'').trim() || 'Synced'
+              : msg;
+  const t = $('syncTxt');
+  t.textContent = (window.innerWidth <= 430) ? short : msg;
+  t.title = msg;
+}
+
+/* ---------- pull / save ---------- */
+async function pull(quiet){
+  if(busy) return;
+  busy = true;
+  if(!quiet) setSync('sync','Loading');
+  try{
+    const r = await call('apiPull', AUTH);
+    if(!r || !r.ok){
+      setSync('off', (r&&r.error)||'Sync error');
+      if(r && /sign in|password|team/i.test(r.error)) signOut(true);
+      busy=false; return;
+    }
+    D=r; ME=r.me; REV=r.rev;
+    try{ localStorage.setItem('hostpro_cache', JSON.stringify(r)); }catch(e){}
+    setSync('ok','Synced ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}));
+    renderAll();
+  }catch(e){ setSync('off','Offline — retrying'); }
+  busy = false;
+}
+async function poll(){
+  if(busy || !AUTH) return;
+  try{
+    const r = await call('apiRev');
+    if(r && r.ok && r.rev !== REV) await pull(true);
+  }catch(e){ setSync('off','Offline — retrying'); }
+}
+/** Saves are confirmed by the Sheet before the screen updates, so what you
+    see is always what your teammates will see. */
+/* Apply the server's own copy of a row to the table we already hold,
+   rather than re-downloading all sixteen tables to see one change.
+
+   Saving used to cost two round trips: the save itself, then a full pull
+   of every table — hundreds of income rows included — just to redraw one
+   edit. On a phone that was the ten seconds. The server hands back the
+   finished row, stamped and totalled, so it is applied locally and the
+   screen redraws at once. The next poll reconciles anything a colleague
+   changed in the meantime. */
+function applyRow(table, row){
+  if(!row || !D || !Array.isArray(D[table])) return false;
+  const i = D[table].findIndex(r => r.id === row.id);
+  if(i > -1) D[table][i] = row; else D[table].push(row);
+  try{ localStorage.setItem('hostpro_cache', JSON.stringify(D)); }catch(e){}
+  return true;
+}
+function dropRow(table, id){
+  if(!D || !Array.isArray(D[table])) return false;
+  const i = D[table].findIndex(r => r.id === id);
+  if(i > -1) D[table].splice(i, 1);
+  try{ localStorage.setItem('hostpro_cache', JSON.stringify(D)); }catch(e){}
+  return true;
+}
+async function save(table, row, msg){
+  setSync('sync','Saving');
+  try{
+    const r = await call('apiSave', AUTH, table, row);
+    if(!r || !r.ok){ toast('Not saved — ' + ((r&&r.error)||'no response'), 6000); setSync('off','Save failed'); return null; }
+    REV = r.rev;
+    /* Only fall back to a full pull if the local copy could not be
+       updated — a fresh session, say, where D is not populated yet. */
+    if(applyRow(table, r.row)){ buildNav(); renderAll(); setSync('ok','Synced ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})); }
+    else await pull(true);
+    if(msg) toast(msg);
+    return r.row;
+  }catch(e){ toast('Not saved — no connection to the workspace.', 6000); setSync('off','Offline'); return null; }
+}
+async function del(table, id, confirmMsg){
+  if(confirmMsg && !confirm(confirmMsg)) return false;
+  setSync('sync','Removing');
+  try{
+    const r = await call('apiDelete', AUTH, table, id);
+    if(!r || !r.ok){ toast('Not removed — ' + ((r&&r.error)||'no response'), 6000); setSync('off','Failed'); return false; }
+    REV = r.rev;
+    if(dropRow(table, id)){ buildNav(); renderAll(); setSync('ok','Synced ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})); }
+    else await pull(true);
+    toast('Removed.'); return true;
+  }catch(e){ toast('Not removed — no connection.', 6000); return false; }
+}
+
+/* ---------- gates ---------- */
+function showGate(which){
+  ['serverGate','gate','app'].forEach(id=>$(id).classList.add('hidden'));
+  $(which).classList.remove('hidden');
+}
+$('srvGo').onclick = async () => {
+  const u = $('srvUrl').value.trim();
+  if(!/^https:\/\/script\.google\.com\/.+\/exec$/.test(u)){
+    $('srvErr').textContent = 'That does not look like the web app link. It starts with https://script.google.com and ends in /exec.';
+    return;
+  }
+  $('srvErr').textContent = 'Checking the link…';
+  API_URL = u;
+  try{
+    const r = await fetch(u + '?ping=1');
+    const j = await r.json();
+    if(!j.ok) throw new Error('bad');
+    try{ localStorage.setItem('hostpro_srv', u); }catch(e){}
+    $('srvErr').textContent = '';
+    showGate('gate'); loadNames();
+  }catch(e){
+    $('srvErr').textContent = 'Could not reach that workspace. Check the link, and that the deployment is set to "Anyone".';
+  }
+};
+$('srvChange').onclick = () => { $('srvUrl').value = API_URL; showGate('serverGate'); };
+async function loadNames(){
+  try{
+    const r = await call('apiWhoCanSignIn');
+    if(r && r.ok){
+      const groups = {HostPro:[], Admin:[], Manager:[], Staff:[]};
+      r.people.forEach(p => { (groups[p.role] || groups.Staff).push(p.name); });
+      const label = {HostPro:'Primary account', Admin:'HostPro & owners', Manager:'Onsite managers', Staff:'Onsite team'};
+      $('inUser').innerHTML = ['HostPro','Admin','Manager','Staff'].filter(k=>groups[k].length)
+        .map(k => `<optgroup label="${label[k]}">` +
+          groups[k].map(n=>`<option>${esc(n)}</option>`).join('') + '</optgroup>').join('');
+    } else $('inErr').textContent = (r && r.error) || 'Could not load the sign-in list.';
+  }catch(e){ $('inErr').textContent = 'Could not reach the workspace. Check your connection.'; }
+}
+async function signIn(){
+  const name = $('inUser').value, pw = $('inPass').value;
+  $('inErr').textContent = 'Checking…';
+  try{
+    const r = await call('apiSignIn', name, pw);
+    if(!r || !r.ok){ $('inErr').textContent = (r&&r.error)||'Could not sign in.'; return; }
+    AUTH = {name:name, pw:pw}; ME = r.me;
+    try{ localStorage.setItem('hostpro_auth', JSON.stringify(AUTH)); }catch(e){}
+    $('inErr').textContent = '';
+    showGate('app'); buildNav(); await pull();
+    toast('Welcome, ' + name.split(' ')[0] + '.');
+  }catch(e){ $('inErr').textContent = 'Could not reach the workspace.'; }
+}
+function signOut(silent){
+  AUTH=null; ME=null; D=null;
+  try{ localStorage.removeItem('hostpro_auth'); localStorage.removeItem('hostpro_cache'); }catch(e){}
+  $('inPass').value = '';
+  $('inErr').textContent = silent ? 'Your session ended. Please sign in again.' : '';
+  showGate('gate'); loadNames();
+}
+$('inGo').onclick = signIn;
+$('inPass').addEventListener('keydown', e => { if(e.key === 'Enter') signIn(); });
+
+/* ---------- navigation ---------- */
+const NAV = [
+  {id:'g-dash', label:'Overview', pages:[['dash','Overview']]},
+  {id:'g-ops',  label:'Operations', pages:[['issues','Slack Issues',3],['tasks','Tasks'],
+      ['check','Checklists'],['clock','Clock-in'],['guest','Guest Feedback',3]]},
+  /* Team and Admin are admin-only. A manager could previously browse
+     everyone's ratings, mistakes and the full directory — read-only, but
+     visible. Revenue stays at 3 because the server already narrows it to
+     the properties that manager covers. */
+  {id:'g-team', label:'Team', min:4, pages:[['people','Directory'],['perf','Performance'],
+      ['mistakes','Mistakes'],['incentives','Incentives',4]]},
+  /* Revenue is admin-only. It used to be level 3 with the server narrowing
+     each table to the properties that manager covered — they still saw the
+     money for their own cluster. Now they see none of it: no bookings, no
+     expenses, no refunds, and no field-fund flow. READ_TIER in Code.gs is
+     the real gate; this only decides whether the tab is drawn. */
+  {id:'g-money',label:'Revenue', min:4, pages:[['bookings','Bookings'],['expenses','Expenses'],
+      ['refunds','Refunds'],['funds','Field Funds'],['reports','Reports',4]]},
+  {id:'g-admin',label:'Admin', min:4, pages:[['props','Properties'],['logins','Logins',5],['settings','Categories']]}
+];
+let curGroup='g-dash', curPage='dash';
+function buildNav(){
+  const groups = NAV.filter(g => !g.min || can(g.min));
+  if(!groups.some(g=>g.id===curGroup)) curGroup = groups[0].id;
+  $('navMain').innerHTML = groups.map(g =>
+    `<button data-g="${g.id}" class="${g.id===curGroup?'on':''}">${esc(g.label)}</button>`).join('');
+  drawSub();
+  $('whoName').textContent = ME.name.split(' ')[0] + ' · ' + ME.role;
+  $('whoInit').textContent = ME.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+}
+function drawSub(){
+  const g = NAV.filter(x=>x.id===curGroup)[0]; if(!g) return;
+  const pages = g.pages.filter(p => !p[2] || can(p[2]));
+  if(!pages.some(p=>p[0]===curPage)) curPage = pages[0][0];
+  const tabs = pages.length > 1
+    ? pages.map(p=>`<button data-p="${p[0]}" class="${p[0]===curPage?'on':''}">${esc(p[1])}</button>`).join('')
+    : '';
+  $('navSub').innerHTML = tabs +
+    `<span class="spacer"></span><select class="monthpick" id="monthSel"></select>`;
+  document.querySelectorAll('.page').forEach(s => s.classList.toggle('on', s.id === 'pg-' + curPage));
+  renderMonthBar();
+  $('monthSel').addEventListener('change', e => { curMonth = e.target.value; renderAll(); });
+}
+document.addEventListener('click', e => {
+  const g = e.target.closest('[data-g]');
+  if(g){ curGroup = g.dataset.g; curPage = ''; buildNav(); renderAll(); return; }
+  const p = e.target.closest('[data-p]');
+  if(p){ curPage = p.dataset.p; drawSub(); renderAll(); window.scrollTo({top:0,behavior:'smooth'}); }
+});
+
+/* ---------- lookups ---------- */
+const T = t => (D && D[t]) ? D[t] : [];
+const inM = r => curMonth === 'all' || r.ym === curMonth;
+const person   = id => T('People').filter(p=>p.id===id)[0];
+const pName    = id => { const p = person(id); return p ? p.name : (id ? '(removed)' : '—'); };
+const propById = id => T('Properties').filter(p=>p.id===id)[0];
+const propName = id => { const p = propById(id); return p ? p.name : ''; };
+const ownerById= id => T('Owners').filter(o=>o.id===id)[0];
+const ownerOf  = pid => { const p = propById(pid); return p ? ownerById(p.ownerId) : null; };
+const everyone = () => T('People').filter(p=>p.status!=='Inactive').map(p=>p.name).sort();
+const managers = () => T('People').filter(p=>p.role==='Manager');
+const holders  = () => T('People').filter(p=>String(p.fundHolder).toLowerCase()==='yes'||p.role==='Manager');
+const fieldTeam= () => T('People').filter(p=>!TOPROLE(p.role)&&p.status!=='Inactive').map(p=>p.name).sort();
+const refundsOf= id => T('Refunds').filter(r=>r.incomeId===id);
+const refunded = id => refundsOf(id).reduce((s,r)=>s+(Number(r.amount)||0),0);
+const isDirect = c => /direct|whatsapp|instagram/i.test(String(c||''));
+const proofOf  = r => (String(r.proof||'').toLowerCase().indexOf('not')===-1 && r.proof) ? PROOF_YES : PROOF_NO;
+function terms(id){ const el=$(id); return el ? (el.value||'').toLowerCase().split(/\s+/).filter(Boolean) : []; }
+function hay(){ return [].slice.call(arguments).map(x=>String(x==null?'':x)).join(' ').toLowerCase(); }
+function hit(ts,h){ return ts.every(t=>h.indexOf(t)>-1); }
+
+const PILL = {Pending:'warn','In Progress':'info',Done:'good',Open:'bad',Acknowledged:'warn',
+  Escalated:'bad',Closed:'good',Resolved:'good',Major:'bad',Moderate:'warn',Minor:'flat',Excellent:'good',Good:'good',
+  Average:'flat','Below Average':'warn',Poor:'bad',Active:'good',Training:'warn',Inactive:'flat',
+  Bonus:'good',Deduction:'bad',HostPro:'accent',Admin:'accent',Manager:'info',Staff:'flat'};
+const pill = s => `<span class="pill pill--${PILL[s]||'flat'}">${esc(s)}</span>`;
+const priPill = p => `<span class="pill pill--${String(p).indexOf('P1')===0?'bad':String(p).indexOf('P2')===0?'warn':'flat'}">${esc(p)}</span>`;
+const sel = (t,id,f,opts,cur) => `<select class="inline" data-t="${t}" data-id="${id}" data-f="${f}">` +
+  opts.map(o=>`<option${o===cur?' selected':''}>${esc(o)}</option>`).join('') + '</select>';
+const selKV = (t,id,f,opts,cur,blank) => `<select class="inline" data-t="${t}" data-id="${id}" data-f="${f}">` +
+  (blank?`<option value=""${!cur?' selected':''}>${esc(blank)}</option>`:'') +
+  opts.map(o=>`<option value="${esc(o.id)}"${o.id===cur?' selected':''}>${esc(o.name)}</option>`).join('') + '</select>';
+const txt = (t,id,f,cur,w) => `<input class="inline" style="width:${w||130}px" data-t="${t}" data-id="${id}" data-f="${f}" value="${esc(cur||'')}">`;
+const numIn = (t,id,f,cur) => `<input class="inline" type="number" step="1" style="width:96px" data-t="${t}" data-id="${id}" data-f="${f}" value="${Number(cur)||0}">`;
+const rm = (t,id) => `<button class="mini mini--danger" data-del="${t}" data-id="${id}">Remove</button>`;
+function fill(el, arr, def){ if(!el) return; const cur = el.value;
+  el.innerHTML = arr.map(x=>`<option>${esc(x)}</option>`).join('');
+  if(arr.indexOf(cur)>-1) el.value = cur; else if(def && arr.indexOf(def)>-1) el.value = def; }
+/* A filter dropdown whose first entry means "no filter". Unlike fill, the
+   blank stays selected until the person picks something, and their choice
+   survives a re-render. */
+function keepPick(id, arr, blankLabel){ const el = $(id); if(!el) return;
+  const cur = el.value;
+  el.innerHTML = `<option value="">${esc(blankLabel)}</option>` +
+    arr.map(x=>`<option>${esc(x)}</option>`).join('');
+  if(cur && [].some.call(el.options, o=>o.value===cur)) el.value = cur; }
+function fillKV(el, arr, blank){ if(!el) return; const cur = el.value;
+  el.innerHTML = (blank?`<option value="">${esc(blank)}</option>`:'') +
+    arr.map(x=>`<option value="${esc(x.id)}">${esc(x.name)}</option>`).join('');
+  if([].some.call(el.options,o=>o.value===cur)) el.value = cur; }
+function tbl(el, head, rows, emptyMsg){
+  $(el).innerHTML = rows.length
+    ? '<tr>' + head.map(h=>`<th${h[0]==='#'?' class="r"':''}>${esc(h.replace(/^#/,''))}</th>`).join('') + '</tr>' + rows.join('')
+    : `<tr><td class="empty" colspan="${head.length}">${esc(emptyMsg)}</td></tr>`;
+}
+function overdue(due,dueT,status){
+  if(!due || status === 'Done') return false;
+  return new Date(due + 'T' + (dueT||'23:59')).getTime() < Date.now();
+}
+function mins(n){ if(n==null||n==='') return '—'; n=Number(n);
+  return n < 60 ? n+'m' : Math.floor(n/60)+'h '+(n%60)+'m'; }
+function ageMs(i){ const t = new Date(i.date+'T'+(i.time||'00:00')).getTime(); return isNaN(t)?0:Date.now()-t; }
+function monthLabel(ym){ if(!ym||ym==='all') return 'All months';
+  const p = ym.split('-'); return new Date(+p[0],+p[1]-1,1).toLocaleString('en-US',{month:'long',year:'numeric'}); }
+function months(){
+  const s = {};
+  ['Issues','Tasks','Performance','Mistakes','GuestFeedback','ClockIns','CheckDone','Incentives',
+   'Income','Expenses','Refunds','Funds'].forEach(t => T(t).forEach(r => { if(r.ym) s[r.ym]=1; }));
+  s[ymNow()] = 1;
+  return Object.keys(s).sort().reverse();
+}
+function renderMonthBar(){
+  const el = $('monthSel'); if(!el) return;
+  const ms = months();
+  if(curMonth !== 'all' && ms.indexOf(curMonth) === -1) curMonth = ms[0] || ymNow();
+  el.innerHTML = ms.map(m=>`<option value="${m}"${m===curMonth?' selected':''}>${monthLabel(m)}</option>`).join('')
+    + `<option value="all"${curMonth==='all'?' selected':''}>All months</option>`;
+}
+function statCards(el, cards){
+  $(el).innerHTML = cards.map(c =>
+    `<div class="stat${c[2]?' stat--'+c[2]:''}"><div class="stat__l">${esc(c[0])}</div>
+      <div class="stat__v num">${c[1]}</div></div>`).join('');
+}
+
+/* ══════════ OVERVIEW ══════════ */
+function renderDash(){
+  const inst = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
+  $('whoInfo').innerHTML = 'Signed in as <b>' + esc(ME.name) + '</b> (' + esc(ME.role) + '). ' +
+    (inst ? 'Running as an installed app.'
+          : 'Not installed yet — use your browser menu, then “Add to Home Screen” or “Install”.');
+
+  const iss = T('Issues').filter(inM);
+  const resp = iss.filter(i=>i.responded).length;
+  const rate = iss.length ? Math.round(resp/iss.length*1000)/10 : null;
+  const stale = iss.filter(i=>!i.responded && ageMs(i) > 864e5);
+  const openTasks = T('Tasks').filter(t=>t.status!=='Done');
+  const cards = [
+    ['Issues this month', iss.length, ''],
+    ['Response rate', rate==null?'—':rate+'%', rate==null?'':rate>=70?'good':rate>=40?'warn':'bad'],
+    ['Unanswered 24h+', stale.length, stale.length?'bad':'good'],
+    ['Open tasks', openTasks.length, openTasks.length?'warn':'good'],
+    ['Properties', T('Properties').length, ''],
+    ['Onsite team', T('People').filter(p=>!TOPROLE(p.role)&&p.status==='Active').length, '']
+  ];
+  if(can(4)){
+    const inc = T('Income').filter(inM), exp = T('Expenses').filter(inM), rf = T('Refunds').filter(inM);
+    const ti = inc.reduce((s,r)=>s+(Number(r.total)||0),0);
+    const te = exp.reduce((s,r)=>s+(Number(r.usd)||0),0);
+    const tr = rf.reduce((s,r)=>s+(Number(r.amount)||0),0);
+    cards.push(['Income', '$'+fmt(ti), 'good'], ['Expenses', '$'+fmt(te), 'bad'],
+      ['Net', '$'+fmt(ti-tr-te), (ti-tr-te)>=0?'good':'bad']);
+  }
+  statCards('dashStats', cards);
+
+  const alerts = [];
+  if(D.slackAt){
+    const mins = Math.round((Date.now() - new Date(D.slackAt).getTime())/60000);
+    if(mins > 45) alerts.push(`<div class="note note--warn">Slack last synced ${mins} minutes ago. It should run every 10 — check the trigger in Apps Script, or pull it now from Settings.</div>`);
+  } else if(can(3)){
+    alerts.push('<div class="note note--warn">Slack has never synced. Add SLACK_BOT_TOKEN in Apps Script and run installTriggers.</div>');
+  }
+  if(stale.length) alerts.push(`<div class="note note--bad">${stale.length} issue${stale.length>1?'s have':' has'} gone over 24 hours with no reply from the person accountable.</div>`);
+  if(can(4)){
+    const noProof = T('Income').filter(inM).filter(r=>proofOf(r)===PROOF_NO).length;
+    if(noProof) alerts.push(`<div class="note">${noProof} booking${noProof>1?'s':''} this month still ${noProof>1?'have':'has'} no payment proof attached.</div>`);
+  }
+  $('dashAlerts').innerHTML = alerts.join('');
+
+  const score = scoreByManager(iss);
+  const keys = Object.keys(score).sort((a,b)=>score[b].total-score[a].total);
+  tbl('dScore', ['Manager','#Issues','#Rate','#Avg reply','Grade'],
+    keys.slice(0,8).map(function(m){
+      const s = score[m], r = s.total ? Math.round(s.resp/s.total*1000)/10 : 0;
+      return `<tr><td class="strong">${esc(m)}</td><td class="r num">${s.total}</td>
+        <td class="r num" style="color:${r>=80?'var(--good)':r>=50?'var(--warn)':'var(--bad)'};font-weight:600">${r}%</td>
+        <td class="r num">${mins(s.avg)}</td><td>${gradePill(r)}</td></tr>`;
+    }), 'No Slack issues in this month yet.');
+
+  const ord = {'P1 (Urgent)':0,'P2 (High)':1,'P3 (Normal)':2};
+  const ot = openTasks.slice().sort((a,b)=>(ord[a.priority]==null?9:ord[a.priority])-(ord[b.priority]==null?9:ord[b.priority]));
+  tbl('dTasks', ['Task','Assigned to','Priority','Deadline'],
+    ot.slice(0,8).map(t=>`<tr><td>${esc(t.task)}</td><td>${esc(t.assignee||'—')}</td>
+      <td>${priPill(t.priority)}</td>
+      <td class="num"${overdue(t.due,t.dueT,t.status)?' style="color:var(--bad);font-weight:600"':''}>${esc(t.due||'—')}</td></tr>`),
+    'Nothing open.');
+
+  tbl('dStale', ['Reported','Property','Accountable','Issue'],
+    stale.slice().sort((a,b)=>ageMs(b)-ageMs(a)).slice(0,8).map(i=>
+      `<tr><td class="num">${esc(i.date)}<div class="muted">${Math.floor(ageMs(i)/36e5)}h ago</div></td>
+        <td>${esc(i.property)}</td><td class="strong">${esc(i.manager||'nobody')}</td>
+        <td>${esc(String(i.text).slice(0,90))}</td></tr>`),
+    'Everything reported has been answered.');
+
+  const byProp = {};
+  iss.forEach(i => { const k = i.property || '(unmatched)';
+    if(!byProp[k]) byProp[k] = {n:0, major:0, mgr:i.manager||'—'};
+    byProp[k].n++; if(i.severity==='Major') byProp[k].major++; });
+  const pk = Object.keys(byProp).sort((a,b)=>byProp[b].n-byProp[a].n).slice(0,8);
+  tbl('dProps', ['Property','Manager','#Issues','#Major'],
+    pk.map(p=>`<tr><td>${esc(p)}</td><td>${esc(byProp[p].mgr)}</td>
+      <td class="r num">${byProp[p].n}</td>
+      <td class="r num">${byProp[p].major?'<span style="color:var(--bad);font-weight:600">'+byProp[p].major+'</span>':'0'}</td></tr>`),
+    'No issues logged this month.');
+
+  $('dMoneyPanel').classList.toggle('hidden', !can(4));
+  if(can(4)) renderOwnerTable('dOwner');
+}
+function gradePill(r){
+  return r>=80 ? '<span class="pill pill--good">Strong</span>'
+    : r>=50 ? '<span class="pill pill--warn">Needs work</span>'
+    : r>0 ? '<span class="pill pill--bad">Critical</span>'
+    : '<span class="pill pill--bad">No response</span>';
+}
+function scoreByManager(list){
+  const by = {};
+  list.forEach(function(i){
+    const m = i.manager || '(nobody accountable)';
+    if(!by[m]) by[m] = {total:0, resp:0, mins:[], stale:0, avg:null};
+    by[m].total++;
+    if(i.responded) by[m].resp++;
+    if(i.responseMins != null && i.responseMins !== '' && Number(i.responseMins) >= 0) by[m].mins.push(Number(i.responseMins));
+    if(!i.responded && ageMs(i) > 864e5) by[m].stale++;
+  });
+  Object.keys(by).forEach(function(m){
+    const a = by[m].mins;
+    by[m].avg = a.length ? Math.round(a.reduce((x,y)=>x+y,0)/a.length) : null;
+  });
+  return by;
+}
+function perOwner(){
+  const per = {};
+  const g = oid => { if(!per[oid]) per[oid] = {inc:0,exp:0,ref:0,n:0,props:{}}; return per[oid]; };
+  T('Income').filter(inM).forEach(function(r){ const o = ownerOf(r.propId), b = g(o?o.id:'__none');
+    b.inc += Number(r.total)||0; b.n++; const p = propById(r.propId); if(p) b.props[p.name]=1; });
+  T('Expenses').filter(inM).forEach(function(r){ const o = ownerOf(r.propId), b = g(o?o.id:'__none');
+    b.exp += Number(r.usd)||0; const p = propById(r.propId); if(p) b.props[p.name]=1; });
+  T('Refunds').filter(inM).forEach(function(r){ const o = ownerOf(r.propId);
+    g(o?o.id:'__none').ref += Number(r.amount)||0; });
+  return per;
+}
+function renderOwnerTable(el){
+  const per = perOwner(), ids = Object.keys(per);
+  ids.sort((a,b)=>{ const A=ownerById(a), B=ownerById(b); return (A?A.name:'zz').localeCompare(B?B.name:'zz'); });
+  tbl(el, ['Owner','Properties','#Bookings','#Income','#Refunds','#Expenses','#Profit','#Margin'],
+    ids.map(function(id){ const o = ownerById(id), d = per[id], pr = d.inc-d.ref-d.exp;
+      const names = Object.keys(d.props);
+      return `<tr><td class="strong">${esc(o?o.name:'Unassigned properties')}</td>
+        <td class="muted">${names.length} — ${esc(names.slice(0,3).join(', '))}${names.length>3?'…':''}</td>
+        <td class="r num">${d.n}</td><td class="r num">$${fmt(d.inc)}</td>
+        <td class="r num"${d.ref?' style="color:var(--bad)"':''}>$${fmt(d.ref)}</td>
+        <td class="r num">$${fmt(d.exp)}</td>
+        <td class="r num strong" style="color:${pr>=0?'var(--good)':'var(--bad)'}">$${fmt(pr)}</td>
+        <td class="r num">${d.inc?(pr/d.inc*100).toFixed(1)+'%':'—'}</td></tr>`;
+    }), 'No bookings or expenses recorded for this month.');
+}
+
+/* ══════════ SLACK ISSUES ══════════ */
+function renderIssues(){
+  const all = T('Issues').filter(inM);
+  const resp = all.filter(i=>i.responded).length;
+  const rate = all.length ? Math.round(resp/all.length*1000)/10 : 0;
+  const ms = all.filter(i=>i.responseMins!=null&&i.responseMins!==''&&Number(i.responseMins)>=0).map(i=>Number(i.responseMins));
+  const avg = ms.length ? Math.round(ms.reduce((a,b)=>a+b,0)/ms.length) : null;
+  const stale = all.filter(i=>!i.responded && ageMs(i)>864e5).length;
+  const major = all.filter(i=>i.severity==='Major' && stateOf(i)!=='Closed').length;
+  statCards('issStats', [
+    ['Issues logged', all.length, ''], ['Responded', resp, 'good'],
+    ['Response rate', rate+'%', rate>=70?'good':rate>=40?'warn':'bad'],
+    ['Average reply', mins(avg), avg==null?'':avg<=60?'good':avg<=240?'warn':'bad'],
+    ['Unanswered 24h+', stale, stale?'bad':'good'], ['Open majors', major, major?'bad':'good']]);
+  $('issNote').innerHTML = 'Issues are read from your Slack property channels every 10 minutes. ' +
+    'A reply inside the thread <b>from the person accountable</b> is what counts as a response — ' +
+    'a colleague answering on their behalf does not give them credit.' +
+    (D.slackAt ? ' Last sync ' + new Date(D.slackAt).toLocaleString() + '.' : '');
+
+  const score = scoreByManager(all);
+  const keys = Object.keys(score).sort((a,b)=>score[b].total-score[a].total);
+  tbl('issScore', ['Manager','#Issues','#Responded','#Rate','#Average reply','#Unanswered 24h+','Grade'],
+    keys.map(function(m){ const s = score[m], r = s.total?Math.round(s.resp/s.total*1000)/10:0;
+      return `<tr><td class="strong">${esc(m)}</td><td class="r num">${s.total}</td>
+        <td class="r num">${s.resp}</td>
+        <td class="r num" style="color:${r>=80?'var(--good)':r>=50?'var(--warn)':'var(--bad)'};font-weight:600">${r}%</td>
+        <td class="r num">${mins(s.avg)}</td>
+        <td class="r num">${s.stale?'<span style="color:var(--bad);font-weight:600">'+s.stale+'</span>':'0'}</td>
+        <td>${gradePill(r)}</td></tr>`;
+    }), 'No issues in ' + monthLabel(curMonth) + '.');
+
+  const byMonth = {};
+  T('Issues').forEach(function(i){ if(!i.ym) return;
+    const s = byMonth[i.ym] = byMonth[i.ym] || {n:0,resp:0,mins:[],major:0};
+    s.n++; if(i.responded) s.resp++;
+    if(i.responseMins!=null&&i.responseMins!==''&&Number(i.responseMins)>=0) s.mins.push(Number(i.responseMins));
+    if(i.severity==='Major') s.major++; });
+  const tk = Object.keys(byMonth).sort().reverse();
+  tbl('issTrend', ['Month','#Issues','#Responded','#Rate','#Average reply','#Major'],
+    tk.map(function(m){ const s = byMonth[m];
+      const r = s.n?Math.round(s.resp/s.n*1000)/10:0;
+      const a = s.mins.length?Math.round(s.mins.reduce((x,y)=>x+y,0)/s.mins.length):null;
+      const on = m===curMonth;
+      return `<tr data-month="${m}" style="cursor:pointer${on?';background:rgba(129,218,226,.07)':''}">
+        <td class="${on?'strong':''}">${esc(monthLabel(m))}${on?' ←':''}</td><td class="r num">${s.n}</td>
+        <td class="r num">${s.resp}</td>
+        <td class="r num" style="color:${r>=80?'var(--good)':r>=50?'var(--warn)':'var(--bad)'};font-weight:600">${r}%</td>
+        <td class="r num">${mins(a)}</td><td class="r num">${s.major}</td></tr>`;
+    }), 'No issues on record yet.');
+
+  const byCat = {}; all.forEach(i=>byCat[i.category||'Other']=(byCat[i.category||'Other']||0)+1);
+  tbl('issCat', ['Category','#Count','#Share'],
+    Object.keys(byCat).sort((a,b)=>byCat[b]-byCat[a]).map(c=>
+      `<tr><td>${esc(c)}</td><td class="r num">${byCat[c]}</td>
+       <td class="r num">${Math.round(byCat[c]/all.length*100)}%</td></tr>`), 'Nothing yet.');
+
+  const byProp = {};
+  all.forEach(function(i){ const k = i.property||'(unmatched)';
+    if(!byProp[k]) byProp[k] = {n:0,major:0,mgr:i.manager||'—'};
+    byProp[k].n++; if(i.severity==='Major') byProp[k].major++; });
+  tbl('issProp', ['Property','Manager','#Issues','#Major'],
+    Object.keys(byProp).sort((a,b)=>byProp[b].n-byProp[a].n).slice(0,12).map(p=>
+      `<tr><td>${esc(p)}</td><td>${esc(byProp[p].mgr)}</td><td class="r num">${byProp[p].n}</td>
+       <td class="r num">${byProp[p].major}</td></tr>`), 'Nothing yet.');
+
+  fill($('issMgr'), [''].concat(managers().map(m=>m.name)));
+  $('issMgr').options[0].text = 'All managers'; $('issMgr').options[0].value = '';
+  const ts = terms('issSearch'), fm = $('issMgr').value, fs = $('issStat').value, fv = $('issSev').value;
+  const fst = $('issState').value, fo = $('issOut').value;
+  let rows = all.slice().sort((a,b)=>String((b.date||'')+(b.time||'')).localeCompare(String((a.date||'')+(a.time||''))));
+  if(fm) rows = rows.filter(i=>i.manager===fm);
+  if(fst) rows = rows.filter(i=>stateOf(i)===fst);
+  if(fs) rows = rows.filter(i=>i.status===fs);
+  if(fo) rows = rows.filter(i=>i.outcome===fo);
+  if(fv) rows = rows.filter(i=>i.severity===fv);
+  if(ts.length) rows = rows.filter(i=>hit(ts, hay(i.text,i.property,i.manager,i.reportedBy,i.category,i.cluster,i.outcome,i.notes)));
+  tbl('issTbl', ['Reported','Property','Accountable','Issue','Severity','Reply','Open / closed',
+      'Stage','Outcome','Notes',''],
+    rows.slice(0,400).map(function(i){
+      const late = !i.responded && ageMs(i) > 864e5;
+      const reply = i.responded
+        ? `<span class="pill pill--good">${esc(i.responder||'replied')}</span><div class="muted">${mins(i.responseMins)}</div>`
+        : late ? '<span class="pill pill--bad">No reply 24h+</span>' + (i.otherReplier?`<div class="muted">${esc(i.otherReplier)} replied</div>`:'')
+        : '<span class="pill pill--warn">Awaiting</span>' + (i.otherReplier?`<div class="muted">${esc(i.otherReplier)} replied</div>`:'');
+      const st = stateOf(i);
+      const note = String(i.notes||'');
+      return `<tr><td class="num" style="white-space:nowrap">${esc(i.date)}
+          <div class="muted">${esc(i.time)} · ${esc(i.reportedBy)}</div></td>
+        <td>${esc(i.property)}<div class="muted">${esc(i.category||'')}</div></td>
+        <td class="strong">${esc(i.manager||'—')}</td>
+        <td style="max-width:300px">${esc(i.text)}</td>
+        <td>${pill(i.severity)}</td><td>${reply}</td>
+        <td><span class="pill pill--${st==='Closed'?'good':'warn'}">${esc(st)}</span></td>
+        <td>${st==='Closed'?'<span class="muted">—</span>':pill(i.status||'Open')}</td>
+        <td>${i.outcome?`<span class="pill pill--info">${esc(i.outcome)}</span>`:'<span class="muted">—</span>'}</td>
+        <td class="muted" style="max-width:240px">${note ? esc(note.slice(0,110)) + (note.length>110?'…':'') : '—'}
+          ${i.updBy?`<div class="muted" style="font-size:11.5px">— ${esc(i.updBy)}</div>`:''}</td>
+        <td style="white-space:nowrap">${canIssue()?`<button class="mini mini--go" data-editiss="${i.id}">Update</button>`:''}
+          ${can(4)?rm('Issues',i.id):''}</td></tr>`;
+    }), 'No issues match these filters in ' + monthLabel(curMonth) + '.');
+}
+/* Rows created before this change have no state column at all. Anything
+   already marked Resolved reads as Closed; everything else is Open. That
+   keeps the old records meaningful without a migration pass. */
+function stateOf(i){
+  if(i.state === 'Closed' || i.state === 'Open') return i.state;
+  return i.status === 'Resolved' ? 'Closed' : 'Open';
+}
+/* Managers update issues on their own properties — guardSave_ allows exactly
+   that, and they are the ones doing the resolving. */
+const canIssue = () => canW('Issues') || (ME && ME.level === 3);
+
+/* ---------- the issue update modal ---------- */
+const ISSUE_STAGES   = ['Open','Acknowledged','Escalated','In Progress','Resolved'];
+const ISSUE_OUTCOMES = ['Issue resolved','Relocated','Discount offered on future stay',
+                        'Compensation','Refunded'];
+let issFor = null;
+function issSync(){
+  /* Closed cases keep whatever stage they finished on, but there is nothing
+     left to move along, so the picker is put away. The outcome appears the
+     moment the work is resolved — that is the question the team is being
+     asked, and asking it earlier would only invite a guess. */
+  const closed = $('isState').value === 'Closed';
+  $('isStageWrap').classList.toggle('hidden', closed);
+  $('isOutWrap').classList.toggle('hidden', !(closed || $('isStage').value === 'Resolved'));
+}
+function openIssue(id){
+  const i = T('Issues').filter(x=>x.id===id)[0]; if(!i) return;
+  issFor = id;
+  $('mIssTitle').textContent = 'Update — ' + (i.property || 'unmatched property');
+  $('mIssSummary').innerHTML = `Reported ${esc(i.date)} ${esc(i.time||'')} by <b>${esc(i.reportedBy||'someone')}</b>` +
+    ` · ${esc(i.severity||'')} · accountable: <b>${esc(i.manager||'nobody')}</b><br>${esc(i.text||'')}`;
+  $('isErr').textContent = '';
+  $('isState').value = stateOf(i);
+  $('isStage').value = ISSUE_STAGES.indexOf(i.status) > -1 ? i.status : 'Open';
+  $('isOut').value   = ISSUE_OUTCOMES.indexOf(i.outcome) > -1 ? i.outcome : '';
+  $('isNotes').value = i.notes || '';
+  $('isWho').textContent = i.updBy ? 'Last updated by ' + i.updBy + (i.updAt ? ' on ' + i.updAt : '') + '.' : '';
+  issSync();
+  $('mIss').classList.remove('hidden');
+}
+$('isState').addEventListener('change', issSync);
+$('isStage').addEventListener('change', issSync);
+$('isCancel').onclick = () => { $('mIss').classList.add('hidden'); issFor = null; };
+$('isSave').onclick = async () => {
+  if(!issFor) return;
+  const orig = T('Issues').filter(x=>x.id===issFor)[0]; if(!orig) return;
+  const state = $('isState').value;
+  const stage = state === 'Closed' ? (orig.status || 'Resolved') : $('isStage').value;
+  const wantOut = state === 'Closed' || stage === 'Resolved';
+  if(wantOut && !$('isOut').value){
+    $('isErr').textContent = 'Pick how it was resolved before closing it.'; return;
+  }
+  const row = {}; for(const k in orig) row[k] = orig[k];
+  row.state = state;
+  row.status = stage;
+  row.outcome = wantOut ? $('isOut').value : '';
+  row.notes = $('isNotes').value.trim();
+  const ok = await save('Issues', row, 'Issue updated.');
+  if(ok){ $('mIss').classList.add('hidden'); issFor = null; }
+};
+document.addEventListener('click', e => {
+  const tr = e.target.closest('#issTrend tr[data-month]'); if(!tr) return;
+  curMonth = tr.dataset.month; renderMonthBar(); renderAll();
+});
+['issSearch'].forEach(id=>$(id).addEventListener('input', ()=>renderIssues()));
+['issMgr','issStat','issSev','issState','issOut'].forEach(id=>$(id).addEventListener('change', ()=>renderIssues()));
+
+/* ══════════ TASKS ══════════ */
+function renderTasks(){
+  $('taskAdd').classList.toggle('hidden', !canW('Tasks'));
+  const all = T('Tasks');
+  const open = all.filter(t=>t.status!=='Done');
+  const late = open.filter(t=>overdue(t.due,t.dueT,t.status));
+  const mine = ME ? open.filter(t=>t.assignee===ME.name) : [];
+  statCards('tStats', [['Open', open.length, open.length?'warn':'good'],
+    ['Overdue', late.length, late.length?'bad':'good'],
+    ['Assigned to me', mine.length, mine.length?'warn':'good'],
+    ['Done', all.filter(t=>t.status==='Done').length, 'good']]);
+  fill($('tfWho'), [''].concat(everyone()));
+  $('tfWho').options[0].text = 'Everyone'; $('tfWho').options[0].value = '';
+  const ts = terms('tSearch'), fw = $('tfWho').value, fs = $('tfStat').value;
+  const ord = {'P1 (Urgent)':0,'P2 (High)':1,'P3 (Normal)':2};
+  let rows = all.slice()
+    .filter(t=>!fw||t.assignee===fw).filter(t=>!fs||t.status===fs)
+    .filter(t=>!ts.length||hit(ts, hay(t.task,t.assignee,t.note,t.category,t.status,t.priority)))
+    .sort((a,b)=>(ord[a.priority]==null?9:ord[a.priority])-(ord[b.priority]==null?9:ord[b.priority]));
+  tbl('tTbl', ['Task','Assigned to','Category','Priority','Deadline','Status','Notes',''],
+    rows.map(function(t){
+      const own = ME && t.assignee === ME.name;
+      const od = overdue(t.due,t.dueT,t.status);
+      return `<tr><td class="strong">${esc(t.task)}</td><td>${esc(t.assignee||'—')}</td>
+        <td class="muted">${esc(t.category||'')}</td><td>${priPill(t.priority)}</td>
+        <td class="num"${od?' style="color:var(--bad);font-weight:600"':''}>${od?'⚠ ':''}${esc(t.due||'—')}${t.dueT?' '+esc(t.dueT):''}</td>
+        <td>${(own||canW('Tasks'))?sel('Tasks',t.id,'status',['Pending','In Progress','Done'],t.status):pill(t.status)}</td>
+        <td class="muted">${esc(t.note||'')}</td><td>${canW('Tasks')?rm('Tasks',t.id):''}</td></tr>`;
+    }), 'No tasks match.');
+}
+$('tAdd').onclick = async () => {
+  const task = $('tTask').value.trim(); if(!task) return toast('Type the task first.');
+  const ok = await save('Tasks', {task:task, assignee:$('tWho').value, category:$('tCat').value,
+    priority:$('tPri').value, due:$('tDue').value, dueT:$('tDueT').value, status:$('tStat').value,
+    note:$('tNote').value.trim()}, 'Task assigned.');
+  if(ok) ['tTask','tNote','tDue','tDueT'].forEach(i=>$(i).value='');
+};
+
+/* ══════════ CHECKLISTS ══════════ */
+const ticked = (itemId,date) => T('CheckDone').filter(c=>c.id==='cd_'+itemId+'_'+date)[0];
+function renderCheck(){
+  const today = D.today, items = T('Checklist');
+  const mine = ME ? items.filter(c=>c.emp===ME.name) : [];
+  const mineDone = mine.filter(c=>ticked(c.id,today)).length;
+  const teamDone = items.filter(c=>ticked(c.id,today)).length;
+  statCards('clStats', [['My daily tasks', mine.length, ''],
+    ['Done today', mineDone, (mine.length&&mineDone===mine.length)?'good':'warn'],
+    ['Left today', mine.length-mineDone, (mine.length-mineDone)?'warn':'good'],
+    ['Team done today', items.length ? teamDone+' / '+items.length : '—', teamDone===items.length?'good':'']]);
+  tbl('clMine', ['','Daily task','Done at'],
+    mine.map(function(c){ const d = ticked(c.id,today);
+      return `<tr><td style="width:40px"><input type="checkbox" data-cl="${c.id}"${d?' checked':''}
+        style="width:19px;height:19px;cursor:pointer;accent-color:#81dae2"></td>
+        <td class="${d?'muted':'strong'}" style="${d?'text-decoration:line-through':''}">${esc(c.task)}</td>
+        <td class="num">${d?esc(d.time)+' ✓':'—'}</td></tr>`;
+    }), 'Nothing on your daily list yet.');
+
+  $('clAdmin').classList.toggle('hidden', !canW('Checklist'));
+  if(canW('Checklist')){
+    const s = items.slice().sort((a,b)=>String(a.emp).localeCompare(String(b.emp))||String(a.task).localeCompare(String(b.task)));
+    tbl('clItems', ['Person','Daily task','Since',''],
+      s.map(c=>`<tr><td>${esc(c.emp)}</td><td>${esc(c.task)}</td><td class="num muted">${esc(c.created||'')}</td>
+        <td>${rm('Checklist',c.id)}</td></tr>`), 'No daily tasks created yet.');
+  }
+  const st = items.slice().sort((a,b)=>String(a.emp).localeCompare(String(b.emp))||String(a.task).localeCompare(String(b.task)));
+  tbl('clTeam', ['Person','Daily task','Status'],
+    st.map(function(c){ const d = ticked(c.id,today);
+      return `<tr><td>${esc(c.emp)}</td><td>${esc(c.task)}</td>
+        <td>${d?`<span class="pill pill--good">Done ${esc(d.time)}</span>`:'<span class="pill pill--warn">Pending</span>'}</td></tr>`;
+    }), 'No daily checklists yet.');
+  const log = T('CheckDone').filter(inM).sort((a,b)=>String(b.date+b.time).localeCompare(String(a.date+a.time)));
+  tbl('clLog', ['Date','Person','Daily task','Done at'],
+    log.slice(0,300).map(c=>`<tr><td class="num">${esc(c.date)}</td><td>${esc(c.emp)}</td>
+      <td>${esc(c.item)}</td><td class="num">${esc(c.time)}</td></tr>`), 'Nothing logged this month.');
+}
+$('clAdd').onclick = async () => {
+  const t = $('clTask').value.trim(); if(!t) return toast('Type the daily task first.');
+  const ok = await save('Checklist', {emp:$('clWho').value, task:t}, 'Daily task added.');
+  if(ok) $('clTask').value = '';
+};
+document.addEventListener('change', async e => {
+  const el = e.target; if(!el.dataset.cl) return;
+  const item = T('Checklist').filter(c=>c.id===el.dataset.cl)[0]; if(!item) return;
+  if(!ME || item.emp !== ME.name){ toast('Only ' + item.emp + ' can tick that one.'); renderCheck(); return; }
+  const date = D.today, id = 'cd_' + item.id + '_' + date;
+  if(el.checked){
+    const now = new Date();
+    await save('CheckDone', {id:id, itemId:item.id, item:item.task, emp:item.emp, date:date,
+      time:String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')},
+      '“' + item.task + '” done for today.');
+  } else await del('CheckDone', id);
+});
+
+/* ══════════ CLOCK-IN ══════════ */
+function renderClock(){
+  const all = T('ClockIns').filter(inM);
+  const today = D.today;
+  const mineToday = ME ? all.filter(c=>c.emp===ME.name && c.date===today)[0] : null;
+  $('ciMsg').textContent = mineToday
+    ? 'You clocked in today at ' + mineToday.time + '.'
+    : 'You have not clocked in today.';
+  $('ciNow').disabled = !!mineToday;
+  const todayN = all.filter(c=>c.date===today).length;
+  const roster = T('People').filter(p=>!TOPROLE(p.role)&&p.status==='Active').length;
+  statCards('ciStats', [['Clocked in today', todayN, todayN?'good':'warn'],
+    ['Onsite roster', roster, ''],
+    ['Logged this month', all.length, ''],
+    ['Late arrivals', all.filter(c=>Number(c.lateMins)>0).length,
+      all.filter(c=>Number(c.lateMins)>0).length ? 'bad' : 'good']]);
+  fill($('ciWho'), [''].concat(everyone()));
+  $('ciWho').options[0].text = 'Everyone'; $('ciWho').options[0].value = '';
+  const f = $('ciWho').value;
+  const rows = all.filter(c=>!f||c.emp===f)
+    .sort((a,b)=>String(b.date+b.time).localeCompare(String(a.date+a.time)));
+  /* Late is measured against the start time an admin set for that person.
+     There is no grace: 08:01 against an 08:00 start is one minute late.
+     Someone with no start time set shows a dash rather than "on time",
+     because nothing was expected of them. */
+  const lateOf = c => (c.lateMins === '' || c.lateMins === null || c.lateMins === undefined)
+    ? null : Number(c.lateMins);
+  const lateCount = rows.filter(c => lateOf(c) > 0).length;
+  tbl('ciTbl', ['Date','Person','Role','Expected','Clocked in','Late by',''],
+    rows.slice(0,300).map(function(c){
+      const L = lateOf(c);
+      const cell = L === null ? '<span class="muted">—</span>'
+        : L > 0 ? `<span class="badge badge--bad">${L} min</span>`
+                : '<span class="badge badge--good">On time</span>';
+      return `<tr><td class="num">${esc(c.date)}</td><td>${esc(c.emp)}</td>
+      <td class="muted">${esc(c.role||'')}</td><td class="num muted">${esc(c.expected||'—')}</td>
+      <td class="num">${esc(c.time)}</td><td>${cell}</td>
+      <td>${can(4)?rm('ClockIns',c.id):''}</td></tr>`;
+    }), 'No clock-ins this month.');
+  const lateStat = document.getElementById('ciLate');
+  if(lateStat) lateStat.textContent = lateCount;
+}
+$('ciNow').onclick = async () => {
+  setSync('sync','Clocking in');
+  try{
+    const r = await call('apiClockIn', AUTH);
+    if(!r || !r.ok) return toast((r&&r.error)||'Could not clock in.', 5000);
+    await pull(true); toast('Clocked in at ' + r.time + '.');
+  }catch(e){ toast('Could not clock in — no connection.'); }
+};
+$('ciWho').addEventListener('change', renderClock);
+
+/* ══════════ GUEST FEEDBACK ══════════ */
+function renderGuest(){
+  $('gfAdd').classList.toggle('hidden', !canW('GuestFeedback'));
+  const all = T('GuestFeedback').filter(inM);
+  const stars = all.map(g=>parseInt(g.rating)||0).filter(Boolean);
+  const avg = stars.length ? (stars.reduce((a,b)=>a+b,0)/stars.length) : null;
+  const low = all.filter(g=>(parseInt(g.rating)||5) <= 2).length;
+  statCards('gfStats', [['Reports', all.length, ''],
+    ['Average rating', avg==null?'—':avg.toFixed(2), avg==null?'':avg>=4?'good':avg>=3?'warn':'bad'],
+    ['1–2 star', low, low?'bad':'good'],
+    ['Unresolved', all.filter(g=>!g.resolution).length, all.filter(g=>!g.resolution).length?'warn':'good']]);
+  const rows = all.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  tbl('gfTbl', ['Date','Property','Responsible','Rating','Area','Feedback','Resolution',''],
+    rows.map(function(g){ const st = parseInt(g.rating)||0;
+      return `<tr><td class="num">${esc(g.date)}</td><td>${esc(propName(g.propId)||g.property||'—')}</td>
+        <td>${esc(g.team||'—')}</td>
+        <td><span class="pill pill--${st>=4?'good':st===3?'warn':'bad'}">${esc(g.rating)}</span></td>
+        <td class="muted">${esc(g.area||'')}</td><td style="max-width:300px">${esc(g.feedback||'')}</td>
+        <td class="muted">${esc(g.resolution||'—')}</td>
+        <td>${canW('GuestFeedback')?rm('GuestFeedback',g.id):''}</td></tr>`;
+    }), 'No guest feedback this month.');
+}
+$('gfSave').onclick = async () => {
+  if(!$('gfProp').value) return toast('Pick a property first.');
+  const ok = await save('GuestFeedback', {date:$('gfDate').value||dateNow(), propId:$('gfProp').value,
+    property:propName($('gfProp').value), team:$('gfWho').value, rating:$('gfRate').value,
+    area:$('gfArea').value, feedback:$('gfText').value.trim(), resolution:$('gfRes').value.trim()},
+    'Feedback logged.');
+  if(ok) ['gfText','gfRes'].forEach(i=>$(i).value='');
+};
+
+/* ══════════ DIRECTORY ══════════ */
+function renderPeople(){
+  $('peAdd').classList.toggle('hidden', !canPeople());
+  /* An admin adds the person; the HostPro account gives them a password
+     from Logins. The server blanks row.pw below level 5 either way, so
+     leaving the box visible would just be a lie. */
+  $('pePwWrap').classList.toggle('hidden', !can(PRIMARY));
+  $('peNoPw').classList.toggle('hidden', can(PRIMARY));
+  const all = T('People');
+  statCards('peStats', [['Admins', all.filter(p=>p.role==='Admin').length, ''],
+    ['Onsite managers', all.filter(p=>p.role==='Manager').length, ''],
+    ['Onsite team', all.filter(p=>p.role==='Staff').length, ''],
+    ['Without a password', all.filter(p=>!p.pw && can(4)).length, all.filter(p=>!p.pw && can(4)).length?'warn':'good']]);
+  const ts = terms('peSearch'), fr = $('peFilter').value;
+  const propsOf = id => T('Properties').filter(p=>p.managerId===id).map(p=>p.name);
+  const rows = all.slice()
+    .filter(p=>!fr||p.role===fr)
+    .filter(p=>!ts.length||hit(ts, hay(p.name,p.role,p.title,p.org,p.contact,propsOf(p.id).join(' '))))
+    .sort((a,b)=>String(a.role).localeCompare(String(b.role))||String(a.name).localeCompare(String(b.name)));
+  /* Starts at is the time this person is expected to clock in. Admins and
+     the primary account set it; everyone else sees it as text. Leave it
+     blank and nothing is expected of them, so they can never be late. */
+  tbl('peTbl', ['Name','Access','Title','Covers / reports to','Contact','Starts at','Status',''],
+    rows.map(function(p){
+      const covers = p.role === 'Manager'
+        ? (propsOf(p.id).slice(0,4).join(', ') + (propsOf(p.id).length>4?' +'+(propsOf(p.id).length-4):'') || '—')
+        : (p.reportsTo ? 'under ' + pName(p.reportsTo) : (p.org||'—'));
+      return `<tr><td class="strong">${esc(p.name)}</td><td>${pill(p.role)}</td>
+        <td class="muted">${esc(p.title||p.position||'—')}</td>
+        <td class="muted" style="max-width:280px">${esc(covers)}</td>
+        <td class="muted">${esc(p.contact||'—')}</td>
+        <td>${can(4)
+          ? `<input class="inline" type="time" style="width:110px" data-t="People" data-id="${p.id}"
+               data-f="shiftStart" value="${esc(p.shiftStart||'')}">`
+          : `<span class="muted">${esc(p.shiftStart||'—')}</span>`}</td>
+        <td>${can(4)?sel('People',p.id,'status',['Active','Training','Inactive'],p.status):pill(p.status)}</td>
+        <td>${can(4)?rm('People',p.id):''}</td></tr>`;
+    }), 'Nobody matches.');
+}
+$('peSave').onclick = async () => {
+  const name = $('peName').value.trim(); if(!name) return toast('Type the name first.');
+  if(T('People').some(p=>String(p.name).toLowerCase()===name.toLowerCase()))
+    return toast('Someone with that name is already in the directory.');
+  const role = $('peRole').value;
+  const prefix = role==='Admin'?'ad_':role==='Manager'?'mgr_':'t_';
+  const ok = await save('People', {id:prefix+name.toLowerCase().replace(/\W+/g,'_'), name:name, role:role,
+    title:$('peTitle').value.trim(), org:$('peOrg').value, contact:$('peContact').value.trim(), email:'',
+    position:$('peTitle').value.trim(), reportsTo:$('peBoss').value,
+    salary:Number($('peSalary').value)||0, currency:$('peCur').value,
+    fundHolder: role==='Manager' ? 'Yes' : $('peFund').value, status:'Active',
+    pw:$('pePw').value.trim()}, name + ' added.');
+  if(ok) ['peName','peTitle','peContact','peSalary','pePw'].forEach(i=>$(i).value='');
+};
+['peSearch'].forEach(id=>$(id).addEventListener('input', renderPeople));
+$('peFilter').addEventListener('change', renderPeople);
+
+/* ══════════ PERFORMANCE ══════════ */
+const RATING_SCORE = {Excellent:5, Good:4, Average:3, 'Below Average':2, Poor:1};
+function renderPerf(){
+  $('pfAdd').classList.toggle('hidden', !canW('Performance'));
+
+  /* Red flags for the month, worst offender first. Managers only ever
+     receive their own — the server filters the table before it is sent. */
+  const flags = T('RedFlags').filter(inM);
+  const byEmp = {};
+  flags.forEach(function(f){ (byEmp[f.emp] = byEmp[f.emp] || []).push(f); });
+  const names = Object.keys(byEmp).sort(function(a,b){ return byEmp[b].length - byEmp[a].length; });
+  if(!flags.length){
+    $('rfTbl').innerHTML = `<tr><td class="muted">No red flags this month${
+      can(4) ? '' : ' — nothing outstanding against you.'}</td></tr>`;
+  } else {
+    let h = `<tr><th>Person</th><th>Flags</th><th>What happened</th><th>Deadline</th><th>Raised</th></tr>`;
+    names.forEach(function(n){
+      const list = byEmp[n].slice().sort(function(a,b){ return String(b.due).localeCompare(String(a.due)); });
+      h += `<tr class="grouped"><td class="strong">${esc(n)}</td>
+            <td><span class="badge badge--bad">${list.length}</span></td><td colspan="3"></td></tr>`;
+      list.forEach(function(f){
+        h += `<tr><td></td><td class="muted">${esc(f.kind)}</td>
+              <td>${esc(f.detail||'')}</td><td class="muted">${esc(f.due||'')}</td>
+              <td class="muted">${esc(f.date||'')}</td></tr>`;
+      });
+    });
+    $('rfTbl').innerHTML = h;
+  }
+
+  const all = T('Performance').filter(inM);
+  const by = {};
+  all.forEach(function(p){ if(!by[p.emp]) by[p.emp] = {n:0, sum:0, low:0};
+    by[p.emp].n++; by[p.emp].sum += (RATING_SCORE[p.rating]||3);
+    if((RATING_SCORE[p.rating]||3) <= 2) by[p.emp].low++; });
+  const keys = Object.keys(by).sort((a,b)=>(by[b].sum/by[b].n)-(by[a].sum/by[a].n));
+  tbl('pfSum', ['Person','#Entries','#Average','#Below average','Standing'],
+    keys.map(function(k){ const s = by[k], avg = s.sum/s.n;
+      return `<tr><td class="strong">${esc(k)}</td><td class="r num">${s.n}</td>
+        <td class="r num" style="font-weight:600;color:${avg>=4?'var(--good)':avg>=3?'var(--warn)':'var(--bad)'}">${avg.toFixed(2)}</td>
+        <td class="r num">${s.low}</td>
+        <td>${avg>=4?'<span class="pill pill--good">Strong</span>':avg>=3?'<span class="pill pill--warn">Watch</span>':'<span class="pill pill--bad">Action needed</span>'}</td></tr>`;
+    }), 'Nobody has been rated in ' + monthLabel(curMonth) + '.');
+  fill($('pfFilter'), [''].concat(everyone()));
+  $('pfFilter').options[0].text = 'Everyone'; $('pfFilter').options[0].value = '';
+  const f = $('pfFilter').value;
+  const rows = all.filter(p=>!f||p.emp===f).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  tbl('pfTbl', ['Date','Person','Area','Rating','Notes','Logged by',''],
+    rows.map(p=>`<tr><td class="num">${esc(p.date)}</td><td class="strong">${esc(p.emp)}</td>
+      <td class="muted">${esc(p.category)}</td><td>${pill(p.rating)}</td>
+      <td>${esc(p.note||'—')}</td><td class="muted">${esc(p.by||'')}</td>
+      <td>${canW('Performance')?rm('Performance',p.id):''}</td></tr>`), 'Nothing logged this month.');
+}
+$('pfSave').onclick = async () => {
+  const ok = await save('Performance', {date:$('pfDate').value||dateNow(), emp:$('pfWho').value,
+    category:$('pfCat').value, rating:$('pfRate').value, note:$('pfNote').value.trim()},
+    'Performance logged.');
+  if(ok) $('pfNote').value = '';
+};
+$('pfFilter').addEventListener('change', renderPerf);
+
+/* ══════════ MISTAKES ══════════ */
+function renderMistakes(){
+  $('msAdd').classList.toggle('hidden', !canW('Mistakes'));
+  const all = T('Mistakes').filter(inM);
+  const by = {}; all.forEach(m=>by[m.emp]=(by[m.emp]||0)+1);
+  const worst = Object.keys(by).sort((a,b)=>by[b]-by[a])[0];
+  statCards('msStats', [['Logged', all.length, all.length?'warn':'good'],
+    ['Major', all.filter(m=>m.severity==='Major').length, all.filter(m=>m.severity==='Major').length?'bad':'good'],
+    ['Guest-impacting', all.filter(m=>String(m.impact).indexOf('impact')>-1 && m.impact!=='No impact').length, 'warn'],
+    ['Most logged', worst ? worst.split(' ')[0]+' ('+by[worst]+')' : '—', '']]);
+  const ts = terms('msSearch');
+  const rows = all.filter(m=>!ts.length||hit(ts, hay(m.emp,m.mgr,m.area,m.detail,m.action,m.severity)))
+    .sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  tbl('msTbl', ['Date','Person','Manager','Area','Severity','What happened','Impact','Action',''],
+    rows.map(m=>`<tr><td class="num">${esc(m.date)}</td><td class="strong">${esc(m.emp)}</td>
+      <td class="muted">${esc(m.mgr||'—')}</td><td class="muted">${esc(m.area||'—')}</td>
+      <td>${pill(m.severity)}</td><td style="max-width:300px">${esc(m.detail||'')}</td>
+      <td class="muted">${esc(m.impact||'')}</td><td class="muted">${esc(m.action||'—')}</td>
+      <td>${canW('Mistakes')?rm('Mistakes',m.id):''}</td></tr>`), 'Nothing logged this month.');
+}
+$('msSave').onclick = async () => {
+  const detail = $('msText').value.trim(); if(!detail) return toast('Describe what happened.');
+  const ok = await save('Mistakes', {date:$('msDate').value||dateNow(), emp:$('msWho').value,
+    mgr:$('msMgr').value, area:$('msArea').value, severity:$('msSev').value, detail:detail,
+    impact:$('msImpact').value, action:$('msAction').value.trim()}, 'Mistake logged.');
+  if(ok) ['msText','msAction'].forEach(i=>$(i).value='');
+};
+$('msSearch').addEventListener('input', renderMistakes);
+
+/* ══════════ INCENTIVES ══════════ */
+function renderIncentives(){
+  const allowed = can(4);
+  $('incWall').classList.toggle('hidden', allowed);
+  $('incBody').classList.toggle('hidden', !allowed);
+  if(!allowed) return;
+  const all = T('Incentives').filter(inM);
+  const by = {};
+  T('People').filter(p=>!TOPROLE(p.role)).forEach(function(p){
+    by[p.name] = {base:Number(p.salary)||0, cur:p.currency||'GHS', bonus:0, ded:0}; });
+  all.forEach(function(x){
+    const s = by[x.emp] = by[x.emp] || {base:0, cur:x.currency||'GHS', bonus:0, ded:0};
+    if(x.type === 'Bonus') s.bonus += Number(x.amount)||0; else s.ded += Number(x.amount)||0; });
+  const keys = Object.keys(by).filter(k=>by[k].base||by[k].bonus||by[k].ded).sort();
+  tbl('icSum', ['Person','#Base','#Bonuses','#Deductions','#Net payable','Currency'],
+    keys.map(function(k){ const s = by[k], net = s.base + s.bonus - s.ded;
+      return `<tr><td class="strong">${esc(k)}</td><td class="r num">${n0(s.base)}</td>
+        <td class="r num" style="color:var(--good)">${s.bonus?'+'+n0(s.bonus):'—'}</td>
+        <td class="r num" style="color:var(--bad)">${s.ded?'−'+n0(s.ded):'—'}</td>
+        <td class="r num strong">${n0(net)}</td><td class="muted">${esc(s.cur)}</td></tr>`;
+    }), 'Add salaries in the directory to see net positions.');
+  tbl('icTbl', ['Date','Person','Type','#Amount','Reason','Logged by',''],
+    all.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(x=>
+      `<tr><td class="num">${esc(x.date)}</td><td class="strong">${esc(x.emp)}</td>
+       <td>${pill(x.type)}</td><td class="r num">${n0(x.amount)}</td>
+       <td>${esc(x.reason||'—')}</td><td class="muted">${esc(x.by||'')}</td>
+       <td>${rm('Incentives',x.id)}</td></tr>`), 'No adjustments this month.');
+}
+$('icSave').onclick = async () => {
+  const amt = Number($('icAmt').value); if(!amt) return toast('Enter an amount.');
+  const who = T('People').filter(p=>p.name===$('icWho').value)[0];
+  const ok = await save('Incentives', {date:dateNow(), emp:$('icWho').value, type:$('icType').value,
+    amount:Math.abs(amt), currency:(who&&who.currency)||'GHS', reason:$('icReason').value.trim()},
+    'Adjustment recorded.');
+  if(ok) ['icAmt','icReason'].forEach(i=>$(i).value='');
+};
+
+/* ══════════ BOOKINGS ══════════ */
+function payChoices(){ const l = (D.payChannels||[]).slice();
+  if(!l.some(x=>String(x).toLowerCase()==='unspecified')) l.push('Unspecified'); return l; }
+function recalcBooking(){
+  const a = new Date($('bIn').value), b = new Date($('bOut').value);
+  const n = (!isNaN(a)&&!isNaN(b)) ? Math.round((b-a)/86400000) : '';
+  $('bNights').value = (n!=='' && n>=0) ? n : '';
+  const inc = parseFloat($('bAmt').value)||0, fees = parseFloat($('bFees').value)||0;
+  const sf = String($('bPay').value).toLowerCase()==='stripe' ? Math.round(inc*0.045*100)/100 : 0;
+  $('bStripe').value = fmt(sf);
+  $('bTotal').value = fmt(inc - fees - sf);
+}
+['bIn','bOut','bAmt','bFees'].forEach(id=>$(id).addEventListener('input', recalcBooking));
+$('bPay').addEventListener('change', recalcBooking);
+function renderBookings(){
+  $('bkAdd').classList.toggle('hidden', !canW('Income'));
+  keepPick('bkPay', D.payChannels||[], 'All payment channels');
+  const all = T('Income').filter(inM);
+  const ts = terms('bkSearch'), fo = $('bkOwner').value, fc = $('bkChan').value, fp = $('bkProof').value;
+  const fpay = $('bkPay').value, fver = $('bkVer').value;
+  const rows = all
+    .filter(r=>{ if(!fo) return true; const o = ownerOf(r.propId); return o && o.id===fo; })
+    .filter(r=>!fc||r.channel===fc).filter(r=>!fp||proofOf(r)===fp)
+    .filter(r=>!fpay||String(r.payChannel||'')===fpay)
+    .filter(r=>!fver||(fver==='Yes' ? String(r.verified)==='Yes' : String(r.verified)!=='Yes'))
+    .filter(r=>{ if(!ts.length) return true;
+      return hit(ts, hay(propName(r.propId), r.guest, r.bookingId, r.channel, r.payChannel, r.notes, r.bookedBy)); })
+    .sort((a,b)=>String(a.checkIn).localeCompare(String(b.checkIn)));
+  const ti = rows.reduce((s,r)=>s+(Number(r.total)||0),0);
+  const dir = all.filter(r=>isDirect(r.channel));
+  const noProof = all.filter(r=>proofOf(r)===PROOF_NO).length;
+  statCards('bkStats', [['Bookings shown', rows.length, ''], ['Value shown', '$'+fmt(ti), 'good'],
+    ['Direct this month', dir.length, 'good'],
+    ['Direct value', '$'+fmt(dir.reduce((s,r)=>s+(Number(r.total)||0),0)), ''],
+    ['Proofs outstanding', noProof, noProof?'bad':'good']]);
+  const unlinked = T('Income').filter(r=>!r.propId).length;
+  $('bkUnlinked').classList.toggle('hidden', !unlinked);
+  if(unlinked) $('bkUnlinked').innerHTML = `${unlinked} booking${unlinked>1?'s have':' has'} no property attached — ` +
+    'mostly rows carried over from the old revenue log, where only a name was stored. Open one and pick its property so it counts toward the right owner.';
+  /* Status, Notes and Added by bring this in line with the old Rental
+     Ledger, where the team relied on all three. */
+  tbl('bkTbl', ['Property','Guest','Channel','Closed by','Paid via','Check-in','Nights','#Income',
+      '#Stripe','#Total','Status','Proof','#Refunded','Notes','Added by',''],
+    rows.map(function(r){ const p = propById(r.propId), sf = Number(r.stripeFee)||0, rr = refunded(r.id);
+      const pf = proofOf(r);
+      return `<tr><td>${p?esc(p.name):'<span class="pill pill--warn">no property</span>'}</td>
+        <td class="strong">${esc(r.guest||'—')}</td><td class="muted">${esc(r.channel)}</td>
+        <td>${esc(r.bookedBy||'—')}</td><td class="muted">${esc(r.payChannel||'—')}</td>
+        <td class="num">${esc(r.checkIn||'')}</td><td class="num">${r.nights==null?'—':r.nights}</td>
+        <td class="r num">$${fmt(r.income)}</td>
+        <td class="r num" style="color:${sf?'var(--accent)':'inherit'}">${sf?'$'+fmt(sf):'—'}</td>
+        <td class="r num strong">$${fmt(r.total)}</td>
+        <td><span class="pill pill--${String(r.verified)==='Yes'?'good':'warn'}">${
+          String(r.verified)==='Yes'?'Verified':'Un-Verified'}</span></td>
+        <td><span class="pill pill--${pf===PROOF_YES?'good':'warn'}">${pf===PROOF_YES?'In':'Missing'}</span></td>
+        <td class="r num" style="color:${rr?'var(--bad)':'inherit'}">${rr?'−$'+fmt(rr):'—'}</td>
+        <td class="muted" style="max-width:240px">${esc(r.notes||'—')}</td>
+        <td class="muted">${esc(r.by||'—')}</td>
+        <td style="white-space:nowrap">${canW('Refunds')?`<button class="mini mini--go" data-refund="${r.id}">Refund</button>`:''}
+          ${canW('Income')?`<button class="mini mini--go" data-editinc="${r.id}">Edit</button>`+rm('Income',r.id):''}</td></tr>`;
+    }), 'No bookings match.');
+  const board = {};
+  dir.forEach(function(r){ const w = r.bookedBy || '(not recorded)';
+    if(!board[w]) board[w] = {n:0, usd:0}; board[w].n++; board[w].usd += Number(r.total)||0; });
+  tbl('bkBoard', ['Closed by','#Direct bookings','#Value'],
+    Object.keys(board).sort((a,b)=>board[b].n-board[a].n).map(w=>
+      `<tr><td class="strong">${esc(w)}</td><td class="r num">${board[w].n}</td>
+       <td class="r num">$${fmt(board[w].usd)}</td></tr>`), 'No direct bookings this month.');
+}
+$('bkSearch').addEventListener('input', renderBookings);
+['bkOwner','bkChan','bkProof'].forEach(id=>$(id).addEventListener('change', renderBookings));
+$('bSave').onclick = async () => {
+  if(!$('bProp').value) return toast('Pick a property first. Add one under Admin ▸ Properties.');
+  if(!$('bIn').value || !$('bOut').value) return toast('Both dates are needed.');
+  const inc = parseFloat($('bAmt').value);
+  if(isNaN(inc)) return toast('Enter the income amount.');
+  const ghs = parseFloat($('bGhs').value);
+  const ok = await save('Income', {propId:$('bProp').value, guest:$('bGuest').value.trim(),
+    bookingId:$('bRef').value.trim(), channel:$('bChan').value, payChannel:$('bPay').value,
+    checkIn:$('bIn').value, checkOut:$('bOut').value, income:inc,
+    fees:parseFloat($('bFees').value)||0, ghs:isNaN(ghs)?'':ghs,
+    rate:(!isNaN(ghs)&&inc)?Math.round(ghs/inc*100)/100:'',
+    verified:$('bVer').value, proof:$('bProof').value, notes:$('bNotes').value.trim(),
+    bookedBy:isDirect($('bChan').value)?$('bBy').value:''}, 'Booking saved.');
+  if(ok){ ['bGuest','bRef','bAmt','bGhs','bNotes'].forEach(i=>$(i).value=''); $('bFees').value=0; recalcBooking(); }
+};
+
+/* ══════════ EXPENSES ══════════ */
+function recalcExpense(){ const g = parseFloat($('eGhs').value), r = parseFloat($('eRate').value);
+  if(!isNaN(g) && !isNaN(r) && r>0) $('eUsd').value = (g/r).toFixed(2); }
+['eGhs','eRate'].forEach(id=>$(id).addEventListener('input', recalcExpense));
+function renderExpenses(){
+  $('exAdd').classList.toggle('hidden', !canW('Expenses'));
+  const all = T('Expenses').filter(inM);
+  const ts = terms('exSearch'), fo = $('exOwner').value;
+  const rows = all.filter(r=>{ if(!fo) return true; const o = ownerOf(r.propId); return o && o.id===fo; })
+    .filter(r=>!ts.length||hit(ts, hay(propName(r.propId), r.category, r.item, r.payChannel, pName(r.managerId), r.notes)))
+    .sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  const tot = rows.reduce((s,r)=>s+(Number(r.usd)||0),0);
+  const byCat = {}; rows.forEach(r=>byCat[r.category]=(byCat[r.category]||0)+(Number(r.usd)||0));
+  const top = Object.keys(byCat).sort((a,b)=>byCat[b]-byCat[a])[0];
+  statCards('exStats', [['Expenses shown', rows.length, ''], ['Total', '$'+fmt(tot), 'bad'],
+    ['Biggest category', top ? top.replace(/[^\w &]/g,'').trim() : '—', ''],
+    ['Properties touched', Object.keys(rows.reduce((a,r)=>{a[r.propId]=1;return a;},{})).length, '']]);
+  tbl('exTbl', ['Property','Date','Category','Item','Paid via','Manager','#GHS','#Rate','#USD','Notes',''],
+    rows.map(r=>`<tr><td>${esc(propName(r.propId)||'—')}</td><td class="num">${esc(r.date)}</td>
+      <td class="muted">${esc(r.category)}</td><td class="strong">${esc(r.item||'')}</td>
+      <td class="muted">${esc(r.payChannel||'—')}</td><td>${esc(pName(r.managerId))}</td>
+      <td class="r num">${r.ghs==null?'—':fmt(r.ghs)}</td><td class="r num">${r.rate==null?'—':r.rate}</td>
+      <td class="r num strong">$${fmt(r.usd)}</td><td class="muted">${esc(r.notes||'')}</td>
+      <td style="white-space:nowrap">${canW('Expenses')?`<button class="mini mini--go" data-editexp="${r.id}">Edit</button>`+rm('Expenses',r.id):''}</td></tr>`),
+    'No expenses match.');
+  tbl('exCat', ['Category','#Total','#Share'],
+    Object.keys(byCat).sort((a,b)=>byCat[b]-byCat[a]).map(c=>
+      `<tr><td>${esc(c)}</td><td class="r num">$${fmt(byCat[c])}</td>
+       <td class="r num">${tot?Math.round(byCat[c]/tot*100):0}%</td></tr>`), 'Nothing spent this month.');
+}
+$('exSearch').addEventListener('input', renderExpenses);
+$('exOwner').addEventListener('change', renderExpenses);
+$('eSave').onclick = async () => {
+  if(!$('eProp').value) return toast('Pick a property first.');
+  const usd = parseFloat($('eUsd').value);
+  if(isNaN(usd)) return toast('Enter GHS plus a rate, or a USD amount.');
+  const ok = await save('Expenses', {propId:$('eProp').value, date:$('eDate').value||dateNow(),
+    category:$('eCat').value, item:$('eItem').value.trim(), ghs:parseFloat($('eGhs').value)||'',
+    rate:parseFloat($('eRate').value)||'', usd:Math.round(usd*100)/100,
+    notes:$('eNotes').value.trim(), payChannel:$('ePay').value, managerId:$('eMgr').value},
+    'Expense saved.');
+  if(ok) ['eItem','eGhs','eUsd','eNotes'].forEach(i=>$(i).value='');
+};
+
+/* ══════════ REFUNDS ══════════ */
+function renderRefunds(){
+  const month = T('Refunds').filter(inM), all = T('Refunds');
+  const ts = terms('rfSearch');
+  const rows = month.filter(r=>!ts.length||hit(ts, hay(r.guest, propName(r.propId), r.reason, r.notes, r.payChannel)))
+    .sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  statCards('rfStats', [['Refunded this month', '$'+fmt(month.reduce((s,r)=>s+(Number(r.amount)||0),0)), 'bad'],
+    ['Guests refunded', Object.keys(month.reduce((a,r)=>{a[r.incomeId]=1;return a;},{})).length, ''],
+    ['All time', '$'+fmt(all.reduce((s,r)=>s+(Number(r.amount)||0),0)), 'bad'],
+    ['Refunds all time', all.length, '']]);
+  tbl('rfTbl', ['Date','Guest','Property','Owner','#Booking total','#Refund','Via','Reason','By',''],
+    rows.map(function(r){ const o = ownerOf(r.propId);
+      const src = T('Income').filter(x=>x.id===r.incomeId)[0];
+      return `<tr><td class="num">${esc(r.date)}</td><td class="strong">${esc(r.guest||'—')}</td>
+        <td>${esc(propName(r.propId)||'(removed)')}</td><td class="muted">${esc(o?o.name:'—')}</td>
+        <td class="r num">${src?'$'+fmt(src.total):'—'}</td>
+        <td class="r num strong" style="color:var(--bad)">−$${fmt(r.amount)}</td>
+        <td class="muted">${esc(r.payChannel||'—')}</td><td class="muted">${esc(r.reason||'')}</td>
+        <td class="muted">${esc(r.by||'')}</td><td>${canW('Refunds')?rm('Refunds',r.id):''}</td></tr>`;
+    }), 'No refunds this month. Add one with the Refund button on any booking.');
+  const per = {};
+  month.forEach(function(r){ const o = ownerOf(r.propId), k = o?o.id:'__none';
+    if(!per[k]) per[k] = {n:0, amt:0}; per[k].n++; per[k].amt += Number(r.amount)||0; });
+  tbl('rfOwner', ['Owner','#Refunds','#Amount'],
+    Object.keys(per).sort((a,b)=>per[b].amt-per[a].amt).map(function(k){ const o = ownerById(k);
+      return `<tr><td>${esc(o?o.name:'Unassigned')}</td><td class="r num">${per[k].n}</td>
+        <td class="r num" style="color:var(--bad)">$${fmt(per[k].amt)}</td></tr>`;
+    }), 'Nothing refunded this month.');
+}
+$('rfSearch').addEventListener('input', renderRefunds);
+let refFor = null;
+function openRefund(id){
+  const r = T('Income').filter(x=>x.id===id)[0]; if(!r) return;
+  refFor = id;
+  const already = refunded(id), left = Math.round((Number(r.total)-already)*100)/100;
+  $('mRefTitle').textContent = 'Refund ' + (r.guest||'guest') + (propName(r.propId)?' — '+propName(r.propId):'');
+  $('mRefSummary').innerHTML = `Booking total <b>$${fmt(r.total)}</b> · check-in ${esc(r.checkIn)} · paid via <b>${esc(r.payChannel||'not set')}</b>` +
+    (already?` · already refunded <b>$${fmt(already)}</b>`:'');
+  $('rfErr').textContent = ''; $('rfDate').value = dateNow();
+  $('rfAmt').value = left>0 ? left.toFixed(2) : '';
+  $('rfHint').textContent = left>0 ? 'Up to $'+fmt(left)+' left on this booking. Partial refunds are fine.'
+                                   : 'This booking is already fully refunded.';
+  fill($('rfPay'), payChoices(), r.payChannel);
+  $('rfNotes').value = '';
+  $('mRef').classList.remove('hidden');
+}
+$('rfCancel').onclick = () => { $('mRef').classList.add('hidden'); refFor = null; };
+$('rfSave').onclick = async () => {
+  if(!refFor) return;
+  const src = T('Income').filter(x=>x.id===refFor)[0]; if(!src) return;
+  const amt = parseFloat($('rfAmt').value);
+  if(isNaN(amt)||amt<=0){ $('rfErr').textContent = 'Enter the refund amount in USD.'; return; }
+  if(!$('rfDate').value){ $('rfErr').textContent = 'Pick the date it was sent.'; return; }
+  const already = refunded(refFor);
+  if(amt + already > Number(src.total)+0.009 &&
+     !confirm('That takes the total refunded ($'+fmt(amt+already)+') above the booking total ($'+fmt(src.total)+'). Record it anyway?')) return;
+  const ok = await save('Refunds', {incomeId:src.id, propId:src.propId, guest:src.guest||'',
+    date:$('rfDate').value, amount:Math.round(amt*100)/100, payChannel:$('rfPay').value,
+    reason:$('rfReason').value, notes:$('rfNotes').value.trim()}, 'Refund of $'+fmt(amt)+' recorded.');
+  if(ok){ $('mRef').classList.add('hidden'); refFor = null; }
+};
+
+/* ══════════ FIELD FUNDS ══════════ */
+function fundStats(mid){
+  const sentM = T('Funds').filter(inM).filter(f=>f.managerId===mid).reduce((s,f)=>s+(Number(f.usd)||0),0);
+  const spentM = T('Expenses').filter(inM).filter(r=>r.managerId===mid).reduce((s,r)=>s+(Number(r.usd)||0),0);
+  const sentA = T('Funds').filter(f=>f.managerId===mid).reduce((s,f)=>s+(Number(f.usd)||0),0);
+  const spentA = T('Expenses').filter(r=>r.managerId===mid).reduce((s,r)=>s+(Number(r.usd)||0),0);
+  return {sentM:sentM, spentM:spentM, sentA:sentA, spentA:spentA, bal:sentA-spentA};
+}
+function holderIds(){
+  const s = {}; holders().forEach(m=>s[m.id]=1);
+  T('Funds').forEach(f=>{ if(f.managerId) s[f.managerId]=1; });
+  T('Expenses').forEach(r=>{ if(r.managerId) s[r.managerId]=1; });
+  return Object.keys(s);
+}
+function renderFunds(){
+  $('fdAdd').classList.toggle('hidden', !canW('Funds'));
+  const ids = holderIds();
+  tbl('fdBal', ['Manager','#Sent this month','#Spent this month','#Sent all time','#Spent all time','#Balance'],
+    ids.sort((a,b)=>pName(a).localeCompare(pName(b))).map(function(id){ const s = fundStats(id);
+      return `<tr><td class="strong">${esc(pName(id))}</td><td class="r num">$${fmt(s.sentM)}</td>
+        <td class="r num">$${fmt(s.spentM)}</td><td class="r num">$${fmt(s.sentA)}</td>
+        <td class="r num">$${fmt(s.spentA)}</td>
+        <td class="r num strong" style="color:${s.bal<0?'var(--bad)':'var(--good)'}">$${fmt(s.bal)}</td></tr>`;
+    }), 'Nobody holds field funds yet. Mark someone in the directory.');
+  const rows = T('Funds').filter(inM).sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  tbl('fdTbl', ['Manager','Date','#GHS','#Rate','#USD','Notes','Sent by',''],
+    rows.map(f=>`<tr><td class="strong">${esc(pName(f.managerId))}</td><td class="num">${esc(f.date)}</td>
+      <td class="r num">${f.ghs==null?'—':fmt(f.ghs)}</td><td class="r num">${f.rate==null?'—':f.rate}</td>
+      <td class="r num strong">$${fmt(f.usd)}</td><td class="muted">${esc(f.notes||'')}</td>
+      <td class="muted">${esc(f.by||'')}</td><td>${canW('Funds')?rm('Funds',f.id):''}</td></tr>`),
+    'No transfers this month.');
+}
+['fGhs','fRate'].forEach(id=>$(id).addEventListener('input', () => {
+  const g = parseFloat($('fGhs').value), r = parseFloat($('fRate').value);
+  if(!isNaN(g) && !isNaN(r) && r>0) $('fUsd').value = (g/r).toFixed(2); }));
+$('fSave').onclick = async () => {
+  if(!$('fMgr').value) return toast('Pick a manager first.');
+  const usd = parseFloat($('fUsd').value);
+  if(isNaN(usd)) return toast('Enter GHS plus a rate, or a USD amount.');
+  const ok = await save('Funds', {managerId:$('fMgr').value, date:$('fDate').value||dateNow(),
+    ghs:parseFloat($('fGhs').value)||'', rate:parseFloat($('fRate').value)||'',
+    usd:Math.round(usd*100)/100, notes:$('fNotes').value.trim()}, 'Transfer recorded.');
+  if(ok) ['fGhs','fUsd','fNotes'].forEach(i=>$(i).value='');
+};
+
+/* ══════════ PROPERTIES ══════════ */
+function renderProps(){
+  const props = T('Properties');
+  const noMgr = props.filter(p=>!p.managerId).length, noOwner = props.filter(p=>!p.ownerId).length;
+  statCards('prStats', [['Properties', props.length, ''],
+    ['Active', props.filter(p=>p.status==='Active').length, 'good'],
+    ['No manager', noMgr, noMgr?'warn':'good'],
+    ['No owner', noOwner, noOwner?'warn':'good']]);
+  tbl('owTbl', ['Owner','Contact','#Properties',''],
+    T('Owners').map(function(o){ const n = T('Properties').filter(p=>p.ownerId===o.id).length;
+      return `<tr><td class="strong">${esc(o.name)}</td><td class="muted">${esc(o.contact||'—')}</td>
+        <td class="r num">${n}</td><td>${canW('Owners')?rm('Owners',o.id):''}</td></tr>`;
+    }), 'No owners yet.');
+  const ts = terms('prSearch'), fm = $('prFilter').value;
+  const rows = props.slice()
+    .filter(p=>!fm||p.managerId===fm)
+    .filter(p=>!ts.length||hit(ts, hay(p.name,p.cluster,pName(p.managerId),(ownerById(p.ownerId)||{}).name,p.address)))
+    .sort((a,b)=>String(pName(a.managerId)).localeCompare(String(pName(b.managerId)))||String(a.name).localeCompare(String(b.name)));
+  tbl('prTbl', ['Property','Cluster','Onsite manager','Owner','#Units','Status',''],
+    rows.map(p=>`<tr><td class="strong">${esc(p.name)}</td><td class="muted">${esc(p.cluster||'—')}</td>
+      <td>${canW('Properties')?selKV('Properties',p.id,'managerId',managers(),p.managerId,'— none —'):esc(pName(p.managerId))}</td>
+      <td>${canW('Properties')?selKV('Properties',p.id,'ownerId',T('Owners'),p.ownerId,'— none —'):esc((ownerById(p.ownerId)||{}).name||'—')}</td>
+      <td class="r num">${p.units||1}</td>
+      <td>${canW('Properties')?sel('Properties',p.id,'status',['Active','In Review','Maintenance','Offboarded'],p.status||'Active'):pill(p.status)}</td>
+      <td>${canW('Properties')?rm('Properties',p.id):''}</td></tr>`), 'No properties match.');
+}
+$('prSearch').addEventListener('input', renderProps);
+$('prFilter').addEventListener('change', renderProps);
+$('prSave').onclick = async () => {
+  const name = $('prName').value.trim(); if(!name) return toast('Type the property name.');
+  const ok = await save('Properties', {id:'p_'+name.toLowerCase().replace(/\W+/g,'_'), name:name,
+    cluster:$('prCluster').value.trim(), managerId:$('prMgr').value, ownerId:$('prOwner').value,
+    units:Number($('prUnits').value)||1, address:$('prAddr').value.trim(), status:$('prStat').value},
+    'Property added.');
+  if(ok){ ['prName','prCluster','prAddr'].forEach(i=>$(i).value=''); $('prUnits').value=1; }
+};
+$('owSave').onclick = async () => {
+  const n = $('owName').value.trim(); if(!n) return toast('Type the owner name.');
+  const ok = await save('Owners', {name:n, contact:$('owContact').value.trim()}, 'Owner added.');
+  if(ok){ $('owName').value=''; $('owContact').value=''; }
+};
+
+/* ══════════ LOGINS ══════════ */
+function renderLogins(){
+  const allowed = can(PRIMARY);
+  $('lgWall').classList.toggle('hidden', allowed);
+  $('lgBody').classList.toggle('hidden', !allowed);
+  if(!allowed) return;
+  const rows = [];
+  const group = function(label, list){
+    if(!list.length) return;
+    rows.push(`<tr class="grouped"><td colspan="6">${esc(label)} — ${list.length}</td></tr>`);
+    list.slice().sort((a,b)=>String(a.name).localeCompare(String(b.name))).forEach(function(p){
+      const detail = p.role==='Manager'
+        ? (T('Properties').filter(x=>x.managerId===p.id).map(x=>x.name).slice(0,3).join(', ')||'no properties yet')
+        : [p.title,p.org].filter(Boolean).join(' · ') || '—';
+      const isPrimary = p.role === 'HostPro';
+      rows.push(`<tr><td class="strong">${esc(p.name)}</td><td class="muted">${esc(detail)}</td>
+        <td>${pill(p.role)}</td>
+        <td>${isPrimary ? '<span class="muted">Cannot be changed</span>'
+                        : sel('People',p.id,'role',['Admin','Manager','Staff'],p.role)}</td>
+        <td><input class="inline" type="${maskPw?'password':'text'}" style="width:150px;font-family:ui-monospace,monospace"
+             data-t="People" data-id="${p.id}" data-f="pw" value="${esc(p.pw||'')}" placeholder="set a password"></td>
+        <td>${isPrimary ? '' : rm('People',p.id)}</td></tr>`);
+    });
+  };
+  /* The primary account goes first and its role is fixed. Demoting it —
+     or deleting it — would leave nobody able to reach this screen, and
+     the only way back would be the Apps Script editor. The server blocks
+     both as well; this just stops anyone trying. */
+  group('Primary account', T('People').filter(p=>p.role==='HostPro'));
+  group('HostPro & owners', T('People').filter(p=>p.role==='Admin'));
+  group('Onsite managers', T('People').filter(p=>p.role==='Manager'));
+  group('Onsite team',     T('People').filter(p=>p.role==='Staff'));
+  $('lgTbl').innerHTML = '<tr><th>Name</th><th>Detail</th><th>Access</th><th>Change access</th><th>Password</th><th></th></tr>'
+    + (rows.length ? rows.join('') : '<tr><td class="empty" colspan="6">Nobody in the directory yet.</td></tr>');
+  $('lgMask').textContent = maskPw ? 'Show passwords' : 'Hide passwords';
+}
+$('lgMask').onclick = () => { maskPw = !maskPw; renderLogins(); };
+
+/* ══════════ SETTINGS ══════════ */
+function tagRow(list, items){
+  return items.map(x=>`<span class="pill pill--accent" style="margin:4px 4px 0 0">${esc(x)}` +
+    (can(4)?` <button class="mini" style="color:inherit;padding:0 0 0 4px" data-dellist="${esc(list)}" data-item="${esc(x)}">×</button>`:'') +
+    '</span>').join('');
+}
+function renderSettings(){
+  $('tagChan').innerHTML = tagRow('Channels', D.channels||[]);
+  $('tagPay').innerHTML  = tagRow('PayChannels', D.payChannels||[]);
+  $('tagCat').innerHTML  = tagRow('Categories', D.categories||[]);
+  const installed = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
+
+  /* Only the primary account sees the workspace itself — the link, the
+     backup, the Slack pull and the diagnostics. */
+  $('devPanel').classList.toggle('hidden', !can(PRIMARY));
+  if(!can(PRIMARY)) return;
+  $('devInfo').innerHTML = 'Signed in as <b>' + esc(ME.name) + '</b> (' + esc(ME.role) + '). ' +
+    (HAS_GSR ? 'Opened from Apps Script.' : 'Connected to ' + esc(API_URL.split('://').pop().slice(0,46)) + '…') +
+    (installed ? ' Running as an installed app.' : ' Not installed yet — use your browser menu, then “Add to Home Screen” or “Install”.');
+}
+document.addEventListener('click', async e => {
+  const a = e.target.closest('[data-addlist]');
+  if(a){
+    const list = a.dataset.addlist;
+    const box = {Channels:'lChan', PayChannels:'lPay', Categories:'lCat'}[list];
+    const v = $(box).value.trim(); if(!v) return;
+    const r = await call('apiList', AUTH, 'add', list, v);
+    if(!r || !r.ok) return toast((r&&r.error)||'Could not add that.', 5000);
+    $(box).value = ''; await pull(true); toast('Added.');
+    return;
+  }
+  const d = e.target.closest('[data-dellist]');
+  if(d){
+    if(!confirm('Remove “' + d.dataset.item + '” from the list? Records that already use it keep it.')) return;
+    const r = await call('apiList', AUTH, 'del', d.dataset.dellist, d.dataset.item);
+    if(!r || !r.ok) return toast((r&&r.error)||'Could not remove that.', 5000);
+    await pull(true); toast('Removed.');
+  }
+});
+/* Walks the whole chain one link at a time and reports where it stops,
+   so a blank screen turns into a sentence you can act on. */
+$('btnDiag').onclick = async function(){
+  const out = $('diagOut'); out.classList.remove('hidden');
+  const L = []; const say = s => { L.push(s); out.textContent = L.join('\n'); };
+  say('HostPro OS diagnostics — ' + new Date().toLocaleString());
+  say('Connection: ' + (HAS_GSR ? 'served by Apps Script' : 'installed app → ' + (API_URL||'no link set')));
+  say('Signed in as: ' + (ME ? ME.name + ' (' + ME.role + ', level ' + ME.level + ')' : 'nobody'));
+  say('');
+
+  const step = async function(label, fn){
+    const t0 = Date.now();
+    try{
+      const r = await fn();
+      say('  OK    ' + label + '   (' + (Date.now()-t0) + 'ms)' + (r ? '  ' + r : ''));
+      return true;
+    }catch(e){
+      say('  FAIL  ' + label + '   ' + ((e && e.message) || e));
+      return false;
+    }
+  };
+  say('Reaching the workspace');
+  await step('version check', async function(){
+    const r = await call('apiRev');
+    if(!r || !r.ok) throw new Error((r && r.error) || 'no reply');
+    return 'backend v' + r.v + ', revision ' + r.rev;
+  });
+  await step('loading your data', async function(){
+    const r = await call('apiPull', AUTH);
+    if(!r || !r.ok) throw new Error((r && r.error) || 'no reply');
+    const sizes = Object.keys(r).filter(k=>Array.isArray(r[k]))
+      .map(k=>k+'='+r[k].length).join(' ');
+    return sizes;
+  });
+  say('');
+  say('Drawing the screen');
+  if(renderFaults.length) renderFaults.forEach(f=>say('  FAIL  ' + f));
+  else say('  OK    every panel drew without error');
+  say('');
+  say('What is loaded now');
+  Object.keys(D||{}).filter(k=>Array.isArray(D[k])).forEach(k=>say('  ' + k + ': ' + D[k].length + ' rows'));
+  say('  Slack last sync: ' + (D && D.slackAt ? new Date(D.slackAt).toLocaleString() : 'never'));
+  $('btnCopyDiag').classList.remove('hidden');
+};
+$('btnCopyDiag').onclick = function(){
+  const t = $('diagOut').textContent;
+  if(navigator.clipboard) navigator.clipboard.writeText(t).then(()=>toast('Report copied.'));
+  else toast('Select the text above and copy it.');
+};
+$('btnOut').onclick = () => signOut();
+$('btnServer').onclick = () => { $('srvUrl').value = API_URL; showGate('serverGate'); };
+$('btnSlack').onclick = async () => {
+  toast('Asking Slack for anything new — this can take a minute.');
+  try{
+    const r = await call('apiSyncSlack', AUTH);
+    if(!r || !r.ok) return toast((r&&r.error)||'Slack sync failed.', 6000);
+    await pull(true); toast(r.added ? r.added + ' new issue(s) pulled in.' : 'Slack is already up to date.');
+  }catch(e){ toast('Could not reach Slack.'); }
+};
+
+/* ══════════ INLINE EDITS & DELETES ══════════ */
+document.addEventListener('change', async e => {
+  const el = e.target; if(!el.dataset.t || !el.dataset.f) return;
+  const table = el.dataset.t, id = el.dataset.id, f = el.dataset.f;
+  const rec = T(table).filter(r=>r.id===id)[0]; if(!rec) return;
+  let v = el.value;
+  if(f === 'salary' || f === 'units') v = Number(v)||0;
+  if(f === 'pw' && !String(v).trim()){ toast('A password cannot be blank.'); renderAll(); return; }
+  const clone = {}; for(const k in rec) clone[k] = rec[k];
+  clone[f] = v;
+  const msg = f === 'pw' ? 'Password updated. Tell them separately — the app does not notify anyone.' : null;
+  await save(table, clone, msg);
+});
+document.addEventListener('click', async e => {
+  const b = e.target.closest('[data-del]'); if(!b) return;
+  await del(b.dataset.del, b.dataset.id, 'Remove this record? It disappears for the whole team.');
+});
+document.addEventListener('click', e => {
+  const r = e.target.closest('[data-refund]');  if(r) return openRefund(r.dataset.refund);
+  const i = e.target.closest('[data-editinc]'); if(i) return openEdit('Income', i.dataset.editinc);
+  const x = e.target.closest('[data-editexp]'); if(x) return openEdit('Expenses', x.dataset.editexp);
+  const s = e.target.closest('[data-editiss]'); if(s) return openIssue(s.dataset.editiss);
+});
+
+/* ══════════ EDIT MODAL ══════════ */
+let editCtx = null;
+function opts(arr, cur){ const a = arr.slice(); if(cur && a.indexOf(cur) === -1) a.unshift(cur);
+  return a.map(x=>`<option${x===cur?' selected':''}>${esc(x)}</option>`).join(''); }
+function optsKV(arr, cur, blank){
+  return (blank?`<option value=""${!cur?' selected':''}>${esc(blank)}</option>`:'') +
+    arr.map(x=>`<option value="${esc(x.id)}"${x.id===cur?' selected':''}>${esc(x.name)}</option>`).join('');
+}
+function openEdit(table, id){
+  const r = T(table).filter(x=>x.id===id)[0]; if(!r) return;
+  editCtx = {table:table, id:id};
+  $('mEditErr').textContent = '';
+  if(table === 'Income'){
+    $('mEditTitle').textContent = 'Edit booking — ' + (propName(r.propId) || 'no property yet');
+    $('mEditBody').innerHTML = `<div class="grid g3">
+      <div class="f"><label>Property</label><select id="zProp">${optsKV(T('Properties'), r.propId, '— pick one —')}</select></div>
+      <div class="f"><label>Guest</label><input id="zGuest" value="${esc(r.guest||'')}"></div>
+      <div class="f"><label>Reference</label><input id="zRef" value="${esc(r.bookingId||'')}"></div>
+      <div class="f"><label>Channel</label><select id="zChan">${opts(D.channels||[], r.channel||'')}</select></div>
+      <div class="f"><label>Closed by</label><select id="zBy"><option value="">—</option>${opts(everyone(), r.bookedBy||'')}</select></div>
+      <div class="f"><label>Paid through</label><select id="zPay">${opts(payChoices(), r.payChannel||'')}</select></div>
+      <div class="f"><label>Check-in</label><input type="date" id="zIn" value="${esc(r.checkIn||'')}"></div>
+      <div class="f"><label>Check-out</label><input type="date" id="zOut" value="${esc(r.checkOut||'')}"></div>
+      <div class="f"><label>Income (USD)</label><input type="number" step="0.01" id="zAmt" value="${r.income==null?'':r.income}"></div>
+      <div class="f"><label>Fees (USD)</label><input type="number" step="0.01" id="zFees" value="${r.fees==null?0:r.fees}"></div>
+      <div class="f"><label>Verification</label><select id="zVer">
+        <option${r.verified!=='Verified'?' selected':''}>Un-Verified</option>
+        <option${r.verified==='Verified'?' selected':''}>Verified</option></select></div>
+      <div class="f"><label>Payment proof</label><select id="zProof">
+        <option${proofOf(r)===PROOF_NO?' selected':''}>${PROOF_NO}</option>
+        <option${proofOf(r)===PROOF_YES?' selected':''}>${PROOF_YES}</option></select></div>
+      <div class="f" style="grid-column:1/-1"><label>Notes</label><input id="zNotes" value="${esc(r.notes||'')}"></div></div>
+      <div class="desc" style="margin-top:12px">Nights, the Stripe fee and the total are recalculated when you save.</div>`;
+  } else {
+    $('mEditTitle').textContent = 'Edit expense — ' + (propName(r.propId) || '?');
+    $('mEditBody').innerHTML = `<div class="grid g3">
+      <div class="f"><label>Property</label><select id="zProp">${optsKV(T('Properties'), r.propId, '— pick one —')}</select></div>
+      <div class="f"><label>Date</label><input type="date" id="zDate" value="${esc(r.date||'')}"></div>
+      <div class="f"><label>Category</label><select id="zCat">${opts(D.categories||[], r.category||'')}</select></div>
+      <div class="f"><label>Paid through</label><select id="zPay">${opts(payChoices(), r.payChannel||'')}</select></div>
+      <div class="f"><label>Manager</label><select id="zMgr">${optsKV(holders(), r.managerId, '— none —')}</select></div>
+      <div class="f"><label>Item</label><input id="zItem" value="${esc(r.item||'')}"></div>
+      <div class="f"><label>Amount (GHS)</label><input type="number" step="0.01" id="zGhs" value="${r.ghs==null?'':r.ghs}"></div>
+      <div class="f"><label>Rate</label><input type="number" step="0.0001" id="zRate" value="${r.rate==null?'':r.rate}"></div>
+      <div class="f"><label>Amount (USD)</label><input type="number" step="0.01" id="zUsd" value="${r.usd==null?'':r.usd}"></div>
+      <div class="f" style="grid-column:1/-1"><label>Notes</label><input id="zNotes" value="${esc(r.notes||'')}"></div></div>`;
+    ['zGhs','zRate'].forEach(fid=>$(fid).addEventListener('input', () => {
+      const g = parseFloat($('zGhs').value), rt = parseFloat($('zRate').value);
+      if(!isNaN(g) && !isNaN(rt) && rt>0) $('zUsd').value = (g/rt).toFixed(2); }));
+  }
+  $('mEdit').classList.remove('hidden');
+}
+$('mEditCancel').onclick = () => { $('mEdit').classList.add('hidden'); editCtx = null; };
+$('mEditSave').onclick = async () => {
+  if(!editCtx) return;
+  const orig = T(editCtx.table).filter(x=>x.id===editCtx.id)[0]; if(!orig) return;
+  const row = {}; for(const k in orig) row[k] = orig[k];
+  if(editCtx.table === 'Income'){
+    if(!$('zIn').value || !$('zOut').value){ $('mEditErr').textContent = 'Both dates are needed.'; return; }
+    const inc = parseFloat($('zAmt').value);
+    if(isNaN(inc)){ $('mEditErr').textContent = 'Enter the income amount.'; return; }
+    row.propId=$('zProp').value; row.guest=$('zGuest').value.trim(); row.bookingId=$('zRef').value.trim();
+    row.channel=$('zChan').value; row.bookedBy=$('zBy').value; row.payChannel=$('zPay').value;
+    row.checkIn=$('zIn').value; row.checkOut=$('zOut').value; row.income=inc;
+    row.fees=parseFloat($('zFees').value)||0; row.verified=$('zVer').value; row.proof=$('zProof').value;
+    row.notes=$('zNotes').value.trim();
+  } else {
+    if(!$('zDate').value){ $('mEditErr').textContent = 'Pick the date.'; return; }
+    const usd = parseFloat($('zUsd').value);
+    if(isNaN(usd)){ $('mEditErr').textContent = 'Enter GHS plus a rate, or a USD amount.'; return; }
+    row.propId=$('zProp').value; row.date=$('zDate').value; row.category=$('zCat').value;
+    row.payChannel=$('zPay').value; row.managerId=$('zMgr').value; row.item=$('zItem').value.trim();
+    row.ghs=parseFloat($('zGhs').value)||''; row.rate=parseFloat($('zRate').value)||'';
+    row.usd=Math.round(usd*100)/100; row.notes=$('zNotes').value.trim();
+  }
+  const ok = await save(editCtx.table, row, 'Updated for the whole team.');
+  if(ok){ $('mEdit').classList.add('hidden'); editCtx = null; }
+};
+document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', e => {
+  if(e.target === m){ m.classList.add('hidden'); editCtx = null; refFor = null; issFor = null; } }));
+
+/* ══════════ OWNER & MANAGER REPORTS ══════════ */
+function renderReports(){
+  const per = perOwner(), ids = Object.keys(per).filter(x=>x!=='__none');
+  tbl('repTbl', ['Owner','#Bookings','#Income','#Refunds','#Expenses','#Profit','#Margin',''],
+    ids.sort((a,b)=>ownerById(a).name.localeCompare(ownerById(b).name)).map(function(id){
+      const o = ownerById(id), d = per[id], pr = d.inc-d.ref-d.exp;
+      return `<tr><td class="strong">${esc(o.name)}</td><td class="r num">${d.n}</td>
+        <td class="r num">$${fmt(d.inc)}</td><td class="r num">$${fmt(d.ref)}</td>
+        <td class="r num">$${fmt(d.exp)}</td>
+        <td class="r num strong" style="color:${pr>=0?'var(--good)':'var(--bad)'}">$${fmt(pr)}</td>
+        <td class="r num">${d.inc?(pr/d.inc*100).toFixed(1)+'%':'—'}</td>
+        <td><button class="btn btn--ghost btn--sm" data-rep="${id}">Download</button></td></tr>`;
+    }), 'No revenue data for this month yet.');
+  const mids = holderIds().filter(function(m){ const s = fundStats(m); return s.sentA || s.spentA; });
+  tbl('repMgr', ['Manager','#Sent this month','#Spent this month','#Balance',''],
+    mids.sort((a,b)=>pName(a).localeCompare(pName(b))).map(function(id){ const s = fundStats(id);
+      return `<tr><td class="strong">${esc(pName(id))}</td><td class="r num">$${fmt(s.sentM)}</td>
+        <td class="r num">$${fmt(s.spentM)}</td>
+        <td class="r num strong" style="color:${s.bal<0?'var(--bad)':'var(--good)'}">$${fmt(s.bal)}</td>
+        <td><button class="btn btn--ghost btn--sm" data-mrep="${id}">Download</button></td></tr>`;
+    }), 'No field fund activity yet.');
+}
+document.addEventListener('click', e => {
+  const r = e.target.closest('[data-rep]');  if(r) return ownerReport(r.dataset.rep);
+  const m = e.target.closest('[data-mrep]'); if(m) return managerReport(m.dataset.mrep);
+});
+$('repAll').onclick = () => {
+  const ids = Object.keys(perOwner()).filter(x=>x!=='__none');
+  if(!ids.length) return toast('No data for this month.');
+  ids.forEach(ownerReport);
+  toast(ids.length + ' report file(s) downloaded.');
+};
+function saveBook(sheets, filename){
+  const wb = XLSX.utils.book_new();
+  sheets.forEach(function(s){
+    const ws = XLSX.utils.aoa_to_sheet(s[1]);
+    if(s[2]) ws['!cols'] = s[2];
+    XLSX.utils.book_append_sheet(wb, ws, s[0].slice(0,31));
+  });
+  XLSX.writeFile(wb, filename);
+}
+const safeName = s => String(s).replace(/[^\w\- ]/g,'').trim().replace(/\s+/g,'_') || 'Report';
+function ownerReport(oid){
+  const o = ownerById(oid); if(!o) return;
+  const mine = r => { const w = ownerOf(r.propId); return w && w.id === oid; };
+  const inc = T('Income').filter(inM).filter(mine).sort((a,b)=>String(a.checkIn).localeCompare(String(b.checkIn)));
+  const exp = T('Expenses').filter(inM).filter(mine).sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  const ref = T('Refunds').filter(inM).filter(mine).sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  const iss = T('Issues').filter(inM).filter(mine);
+  const ti = inc.reduce((s,r)=>s+(Number(r.total)||0),0);
+  const te = exp.reduce((s,r)=>s+(Number(r.usd)||0),0);
+  const tr = ref.reduce((s,r)=>s+(Number(r.amount)||0),0);
+  const sf = inc.reduce((s,r)=>s+(Number(r.stripeFee)||0),0);
+  const nights = inc.reduce((s,r)=>s+(Number(r.nights)||0),0);
+  const dir = inc.filter(r=>isDirect(r.channel));
+  const byProp = {}, byChan = {}, byPay = {}, byCat = {};
+  inc.forEach(function(r){
+    const nm = propName(r.propId)||'?';
+    byProp[nm] = (byProp[nm]||0)+(Number(r.total)||0);
+    byChan[r.channel] = (byChan[r.channel]||0)+(Number(r.total)||0);
+    byPay[r.payChannel||'(not set)'] = (byPay[r.payChannel||'(not set)']||0)+(Number(r.total)||0); });
+  exp.forEach(r=>byCat[r.category] = (byCat[r.category]||0)+(Number(r.usd)||0));
+
+  const S = [['MONTHLY PROPERTY REPORT'],[o.name],[monthLabel(curMonth)],[],
+    ['SUMMARY'],['Rental income (USD)', +ti.toFixed(2)],['Refunds paid to guests (USD)', +tr.toFixed(2)],
+    ['Operating expenses (USD)', +te.toFixed(2)],['Net profit (USD)', +(ti-tr-te).toFixed(2)],
+    ['Profit margin', ti ? ((ti-tr-te)/ti*100).toFixed(1)+'%' : '—'],
+    ['Bookings', inc.length],['— of which direct', dir.length],['Nights booked', nights],
+    ['Stripe fees deducted (4.5%)', +sf.toFixed(2)],[],
+    ['OPERATIONS'],['Issues reported', iss.length],
+    ['Issues answered by the onsite manager', iss.filter(i=>i.responded).length],
+    ['Response rate', iss.length ? Math.round(iss.filter(i=>i.responded).length/iss.length*100)+'%' : '—'],
+    [],['INCOME BY PROPERTY']];
+  const dump = (obj, head) => { if(head) S.push([],[head]);
+    Object.keys(obj).sort((a,b)=>obj[b]-obj[a]).forEach(k=>S.push([k, +obj[k].toFixed(2)])); };
+  dump(byProp); dump(byChan,'INCOME BY CHANNEL'); dump(byPay,'INCOME BY PAYMENT CHANNEL');
+  dump(byCat,'EXPENSES BY CATEGORY');
+
+  const I = [['PROPERTY','GUEST','REFERENCE','CHANNEL','CLOSED BY','PAID VIA','STATUS','PROOF',
+    'CHECK IN','CHECK OUT','NIGHTS','INCOME','FEES','STRIPE 4.5%','TOTAL','REFUNDED','NOTES']];
+  inc.forEach(r=>I.push([propName(r.propId)||'?', r.guest, r.bookingId, r.channel, r.bookedBy||'',
+    r.payChannel||'', r.verified==='Verified'?'Verified':'Un-Verified', proofOf(r), r.checkIn, r.checkOut,
+    r.nights, +(Number(r.income)||0).toFixed(2), +(Number(r.fees)||0).toFixed(2),
+    +(Number(r.stripeFee)||0).toFixed(2), +(Number(r.total)||0).toFixed(2),
+    +refunded(r.id).toFixed(2), r.notes]));
+  I.push([],['','','','','','','','','','','TOTAL','','','', +ti.toFixed(2)]);
+
+  const E = [['PROPERTY','DATE','CATEGORY','ITEM','PAID VIA','ONSITE MANAGER','GHS','RATE','USD','NOTES']];
+  exp.forEach(r=>E.push([propName(r.propId)||'?', r.date, r.category, r.item, r.payChannel||'',
+    pName(r.managerId), r.ghs==null?'':r.ghs, r.rate==null?'':r.rate, +(Number(r.usd)||0).toFixed(2), r.notes]));
+  E.push([],['','','','','','','','TOTAL', +te.toFixed(2)]);
+
+  const R = [['DATE','GUEST','PROPERTY','REFUND USD','THROUGH','REASON','NOTES','ADDED BY']];
+  ref.forEach(r=>R.push([r.date, r.guest||'', propName(r.propId)||'?', +(Number(r.amount)||0).toFixed(2),
+    r.payChannel||'', r.reason||'', r.notes||'', r.by||'']));
+  R.push([],['','','TOTAL', +tr.toFixed(2)]);
+
+  const IS = [['DATE','PROPERTY','ACCOUNTABLE','ISSUE','CATEGORY','SEVERITY','ANSWERED','REPLY MINS',
+    'OPEN / CLOSED','STAGE','OUTCOME','NOTES']];
+  iss.sort((a,b)=>String(a.date).localeCompare(String(b.date))).forEach(i=>IS.push([i.date,
+    i.property, i.manager||'', i.text, i.category, i.severity, i.responded?'Yes':'No',
+    i.responseMins==null?'':i.responseMins, stateOf(i), i.status, i.outcome||'', i.notes||'']));
+
+  saveBook([['Summary',S,[{wch:40},{wch:16}]],
+    ['Bookings',I,[{wch:22},{wch:20},{wch:14},{wch:18},{wch:16},{wch:13},{wch:12},{wch:24},{wch:11},{wch:11},{wch:7},{wch:12},{wch:9},{wch:13},{wch:11},{wch:11},{wch:26}]],
+    ['Expenses',E,[{wch:22},{wch:11},{wch:22},{wch:26},{wch:13},{wch:16},{wch:12},{wch:8},{wch:12},{wch:26}]],
+    ['Refunds',R,[{wch:11},{wch:20},{wch:22},{wch:12},{wch:16},{wch:18},{wch:26},{wch:14}]],
+    ['Issues',IS,[{wch:11},{wch:22},{wch:16},{wch:60},{wch:18},{wch:11},{wch:10},{wch:11},{wch:14},
+      {wch:14},{wch:28},{wch:46}]]],
+    safeName(o.name) + '_' + (curMonth==='all'?'all':curMonth) + '_Report.xlsx');
+}
+function managerReport(mid){
+  const s = fundStats(mid), name = pName(mid);
+  const funds = T('Funds').filter(inM).filter(f=>f.managerId===mid).sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  const exps  = T('Expenses').filter(inM).filter(r=>r.managerId===mid).sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  const iss   = T('Issues').filter(inM).filter(i=>i.manager===name);
+  const resp  = iss.filter(i=>i.responded).length;
+  const S = [['ONSITE MANAGER REPORT'],[name],[monthLabel(curMonth)],[],
+    ['FIELD FUNDS'],
+    ['Received this month (USD)', +s.sentM.toFixed(2)],['Spent this month (USD)', +s.spentM.toFixed(2)],
+    ['Net this month (USD)', +(s.sentM-s.spentM).toFixed(2)],
+    ['Received all time (USD)', +s.sentA.toFixed(2)],['Spent all time (USD)', +s.spentA.toFixed(2)],
+    ['REMAINING BALANCE (USD)', +s.bal.toFixed(2)],[],
+    ['RESPONSIVENESS'],
+    ['Issues on their properties', iss.length],['Answered by them', resp],
+    ['Response rate', iss.length ? Math.round(resp/iss.length*100)+'%' : '—'],
+    ['Unanswered over 24h', iss.filter(i=>!i.responded && ageMs(i)>864e5).length],[],
+    ['CONDUCT'],
+    ['Mistakes logged', T('Mistakes').filter(inM).filter(m=>m.emp===name||m.mgr===name).length],
+    ['Performance entries', T('Performance').filter(inM).filter(p=>p.emp===name).length]];
+  const F = [['DATE','GHS','RATE','USD','NOTES','SENT BY']];
+  funds.forEach(f=>F.push([f.date, f.ghs==null?'':f.ghs, f.rate==null?'':f.rate,
+    +(Number(f.usd)||0).toFixed(2), f.notes||'', f.by||'']));
+  const E = [['PROPERTY','DATE','CATEGORY','ITEM','PAID VIA','GHS','RATE','USD','NOTES']];
+  exps.forEach(r=>E.push([propName(r.propId)||'?', r.date, r.category, r.item, r.payChannel||'',
+    r.ghs==null?'':r.ghs, r.rate==null?'':r.rate, +(Number(r.usd)||0).toFixed(2), r.notes||'']));
+  const I = [['DATE','PROPERTY','ISSUE','SEVERITY','ANSWERED','REPLY MINS','STATUS']];
+  iss.sort((a,b)=>String(a.date).localeCompare(String(b.date))).forEach(i=>I.push([i.date, i.property,
+    i.text, i.severity, i.responded?'Yes':'No', i.responseMins==null?'':i.responseMins, i.status]));
+  saveBook([['Summary',S,[{wch:40},{wch:16}]],['Funds received',F,[{wch:11},{wch:12},{wch:8},{wch:12},{wch:28},{wch:16}]],
+    ['Spending',E,[{wch:22},{wch:11},{wch:22},{wch:26},{wch:13},{wch:12},{wch:8},{wch:12},{wch:26}]],
+    ['Issues',I,[{wch:11},{wch:22},{wch:60},{wch:11},{wch:10},{wch:11},{wch:14}]]],
+    safeName(name) + '_' + (curMonth==='all'?'all':curMonth) + '_Manager_Report.xlsx');
+}
+/** The workbook the monthly manager review runs off. */
+$('repPack').onclick = function(){
+  const iss = T('Issues').filter(inM);
+  const score = scoreByManager(iss);
+  const SC = [['MANAGER RESPONSE SCORECARD'],[monthLabel(curMonth)],[],
+    ['MANAGER','ISSUES','RESPONDED','RESPONSE RATE %','AVG REPLY MINS','UNANSWERED 24H+','GRADE']];
+  Object.keys(score).sort((a,b)=>score[b].total-score[a].total).forEach(function(m){
+    const s = score[m], r = s.total ? Math.round(s.resp/s.total*1000)/10 : 0;
+    SC.push([m, s.total, s.resp, r, s.avg==null?'':s.avg, s.stale,
+      r>=80?'Strong':r>=50?'Needs work':r>0?'Critical':'No response']);
+  });
+  const IS = [['DATE','TIME','CLUSTER','PROPERTY','ACCOUNTABLE','REPORTED BY','ISSUE','CATEGORY',
+    'SEVERITY','ANSWERED','RESPONDER','REPLY MINS','OPEN / CLOSED','STAGE','OUTCOME','NOTES','UPDATED BY']];
+  iss.slice().sort((a,b)=>String((a.date||'')+(a.time||'')).localeCompare(String((b.date||'')+(b.time||''))))
+    .forEach(i=>IS.push([i.date,i.time,i.cluster,i.property,i.manager,i.reportedBy,i.text,i.category,
+      i.severity, i.responded?'Yes':'No', i.responder||'', i.responseMins==null?'':i.responseMins,
+      stateOf(i), i.status, i.outcome||'', i.notes||'', i.updBy||'']));
+  const MS = [['DATE','PERSON','MANAGER','AREA','SEVERITY','WHAT HAPPENED','IMPACT','ACTION']];
+  T('Mistakes').filter(inM).forEach(m=>MS.push([m.date,m.emp,m.mgr,m.area,m.severity,m.detail,m.impact,m.action]));
+  const PF = [['DATE','PERSON','AREA','RATING','NOTES','LOGGED BY']];
+  T('Performance').filter(inM).forEach(p=>PF.push([p.date,p.emp,p.category,p.rating,p.note,p.by]));
+  const GF = [['DATE','PROPERTY','RESPONSIBLE','RATING','AREA','FEEDBACK','RESOLUTION']];
+  T('GuestFeedback').filter(inM).forEach(g=>GF.push([g.date,propName(g.propId)||g.property,g.team,
+    g.rating,g.area,g.feedback,g.resolution]));
+  const PAY = [['PERSON','BASE','BONUSES','DEDUCTIONS','NET','CURRENCY']];
+  if(can(4)){
+    const by = {};
+    T('People').filter(p=>!TOPROLE(p.role)).forEach(p=>by[p.name]={base:Number(p.salary)||0,cur:p.currency||'GHS',bonus:0,ded:0});
+    T('Incentives').filter(inM).forEach(function(x){
+      const s = by[x.emp] = by[x.emp] || {base:0,cur:'GHS',bonus:0,ded:0};
+      if(x.type==='Bonus') s.bonus += Number(x.amount)||0; else s.ded += Number(x.amount)||0; });
+    Object.keys(by).filter(k=>by[k].base||by[k].bonus||by[k].ded).sort().forEach(k=>
+      PAY.push([k, by[k].base, by[k].bonus, by[k].ded, by[k].base+by[k].bonus-by[k].ded, by[k].cur]));
+  }
+  saveBook([['Scorecard',SC,[{wch:22},{wch:10},{wch:12},{wch:16},{wch:16},{wch:18},{wch:14}]],
+    ['Issue log',IS,[{wch:11},{wch:7},{wch:16},{wch:22},{wch:16},{wch:18},{wch:60},{wch:18},{wch:11},
+      {wch:10},{wch:16},{wch:11},{wch:14},{wch:14},{wch:28},{wch:46},{wch:16}]],
+    ['Mistakes',MS,[{wch:11},{wch:18},{wch:16},{wch:18},{wch:11},{wch:50},{wch:18},{wch:24}]],
+    ['Performance',PF,[{wch:11},{wch:18},{wch:22},{wch:14},{wch:44},{wch:16}]],
+    ['Guest feedback',GF,[{wch:11},{wch:22},{wch:18},{wch:10},{wch:16},{wch:44},{wch:30}]],
+    ['Pay position',PAY,[{wch:20},{wch:12},{wch:12},{wch:14},{wch:12},{wch:10}]]],
+    'HostPro_Manager_Pack_' + (curMonth==='all'?'all':curMonth) + '.xlsx');
+  toast('Manager pack downloaded.');
+};
+
+/* ══════════ EXPORTS ══════════ */
+const EXPORT_COLS = {
+  Tasks:['task','assignee','category','priority','due','dueT','status','note','assignedBy'],
+  Issues:['date','time','cluster','property','manager','reportedBy','text','category','severity',
+          'responded','responder','responseMins','state','status','outcome','notes','updBy'],
+  CheckDone:['date','emp','item','time'],
+  ClockIns:['date','emp','role','time'],
+  Performance:['date','emp','category','rating','note','by'],
+  Mistakes:['date','emp','mgr','area','severity','detail','impact','action'],
+  GuestFeedback:['date','property','team','rating','area','feedback','resolution'],
+  Incentives:['date','emp','type','amount','currency','reason','by'],
+  People:['name','role','title','org','contact','email','salary','currency','fundHolder','status'],
+  Properties:['name','cluster','units','address','status'],
+  Income:['checkIn','checkOut','guest','channel','bookedBy','payChannel','nights','income','fees',
+          'stripeFee','total','verified','proof','notes'],
+  Expenses:['date','category','item','payChannel','ghs','rate','usd','notes'],
+  Refunds:['date','guest','amount','payChannel','reason','notes'],
+  Funds:['date','ghs','rate','usd','notes']
+};
+const NOT_MONTHLY = ['People','Properties'];
+function sheetFor(table){
+  if(table === 'logins'){
+    if(!can(4)) return null;
+    const rows = [['NAME','ACCESS','TITLE','DETAIL','PASSWORD']];
+    T('People').forEach(function(p){
+      const detail = p.role==='Manager'
+        ? T('Properties').filter(x=>x.managerId===p.id).map(x=>x.name).join(', ')
+        : (p.reportsTo ? 'under ' + pName(p.reportsTo) : p.org||'');
+      rows.push([p.name, p.role, p.title||'', detail, p.pw||'']);
+    });
+    return rows;
+  }
+  if(table === 'issue_months'){
+    const by = {};
+    T('Issues').forEach(function(i){ if(!i.ym) return;
+      const s = by[i.ym] = by[i.ym] || {n:0,resp:0,mins:[],major:0};
+      s.n++; if(i.responded) s.resp++;
+      if(i.responseMins!=null&&i.responseMins!==''&&Number(i.responseMins)>=0) s.mins.push(Number(i.responseMins));
+      if(i.severity==='Major') s.major++; });
+    return [['MONTH','ISSUES','RESPONDED','RESPONSE RATE %','AVG REPLY MINS','MAJOR']].concat(
+      Object.keys(by).sort().reverse().map(function(m){ const s = by[m];
+        return [monthLabel(m), s.n, s.resp, s.n?Math.round(s.resp/s.n*1000)/10:0,
+          s.mins.length?Math.round(s.mins.reduce((x,y)=>x+y,0)/s.mins.length):'', s.major]; }));
+  }
+  const cols = EXPORT_COLS[table]; if(!cols) return null;
+  const rows = NOT_MONTHLY.indexOf(table) > -1 ? T(table) : T(table).filter(inM);
+  const head = cols.map(c=>c.toUpperCase());
+  const wantProp = ['Income','Expenses','Refunds','Issues','GuestFeedback'].indexOf(table) > -1;
+  const wantMgr  = ['Expenses','Funds'].indexOf(table) > -1;
+  if(wantProp && table !== 'Issues' && table !== 'GuestFeedback') head.unshift('OWNER','PROPERTY');
+  if(wantMgr) head.push('MANAGER');
+  if(table === 'Properties') head.push('ONSITE MANAGER','OWNER');
+  const out = [head];
+  rows.forEach(function(r){
+    const line = cols.map(c => r[c]==null ? '' : r[c]);
+    if(wantProp && table !== 'Issues' && table !== 'GuestFeedback'){
+      const o = ownerOf(r.propId); line.unshift(o?o.name:'', propName(r.propId));
+    }
+    if(wantMgr) line.push(pName(r.managerId));
+    if(table === 'Properties') line.push(pName(r.managerId), (ownerById(r.ownerId)||{}).name||'');
+    out.push(line);
+  });
+  return out;
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-exp]'); if(!b) return;
+  const rows = sheetFor(b.dataset.exp);
+  if(!rows) return toast('Not available at your access level.');
+  saveBook([[b.dataset.exp, rows]],
+    'HostPro_' + b.dataset.exp + '_' + (curMonth==='all'?'all':curMonth) + '.xlsx');
+  toast('Downloaded.');
+});
+$('btnBackup').onclick = () => {
+  const sheets = [];
+  Object.keys(EXPORT_COLS).concat(['logins']).forEach(function(t){
+    const rows = sheetFor(t);
+    if(rows && rows.length > 1) sheets.push([t, rows]);
+  });
+  if(!sheets.length) return toast('Nothing to back up yet.');
+  saveBook(sheets, 'HostPro_OS_backup_' + dateNow() + '.xlsx');
+  toast('Backup downloaded. The Google Sheet is always the live backup too.');
+};
+
+/* ══════════ DROPDOWNS ══════════ */
+function refreshSelects(){
+  const all = everyone(), field = fieldTeam();
+  [['tWho',all],['clWho',all],['gfWho',field],['pfWho',field],['msWho',field],['icWho',field],['bBy',all]]
+    .forEach(a=>fill($(a[0]), a[1]));
+  fill($('msMgr'), managers().map(m=>m.name));
+  fillKV($('peBoss'), managers(), '— nobody —');
+  fillKV($('prMgr'), managers(), '— none yet —');
+  fillKV($('prOwner'), T('Owners'), '— none yet —');
+  fillKV($('fMgr'), holders(), '');
+  fillKV($('eMgr'), holders(), '— none —');
+  const props = T('Properties').slice().sort((a,b)=>String(a.name).localeCompare(String(b.name)));
+  fillKV($('bProp'), props, ''); fillKV($('eProp'), props, ''); fillKV($('gfProp'), props, '');
+  fillKV($('prFilter'), managers(), 'All managers');
+  fill($('bChan'), D.channels||[]); fill($('eCat'), D.categories||[]);
+  fill($('bPay'), payChoices()); fill($('ePay'), payChoices());
+  const owners = T('Owners');
+  const ownerOpts = '<option value="">All owners</option>' +
+    owners.map(o=>`<option value="${esc(o.id)}">${esc(o.name)}</option>`).join('');
+  ['bkOwner','exOwner'].forEach(function(id){ const el = $(id), cur = el.value;
+    el.innerHTML = ownerOpts; if([].some.call(el.options,o=>o.value===cur)) el.value = cur; });
+  const chanOpts = '<option value="">All channels</option>' +
+    (D.channels||[]).map(c=>`<option>${esc(c)}</option>`).join('');
+  const bc = $('bkChan'), cur = bc.value; bc.innerHTML = chanOpts;
+  if([].some.call(bc.options,o=>o.value===cur)) bc.value = cur;
+  if(D.lastRate){ if(!$('eRate').value) $('eRate').value = D.lastRate;
+    if(!$('fRate').value) $('fRate').value = D.lastRate; }
+}
+
+/* ══════════ RENDER EVERYTHING ══════════
+   Each panel is drawn inside its own guard. One bad row of data used to
+   throw, abort the whole boot, and leave every table blank with the badge
+   still reading "Starting" — no error, nothing to go on. Now a broken panel
+   names itself at the top of the screen and everything else still works. */
+let renderFaults = [];
+function safely(what, fn){
+  try{ fn(); }
+  catch(e){
+    renderFaults.push(what + ': ' + ((e && e.message) || e));
+    if(window.console) console.error('HostPro OS — ' + what, e);
+  }
+}
+function showFaults(){
+  const box = $('dashAlerts'); if(!box) return;
+  if(!renderFaults.length) return;
+  box.innerHTML = '<div class="note note--bad"><b>Some panels could not be drawn.</b><br>' +
+    renderFaults.map(esc).join('<br>') +
+    '<br><br>Everything else on this screen is still live. Admin ▸ Categories ▸ Run diagnostics prints the ' +
+    'full detail if you need to send it on.</div>' + box.innerHTML;
+  setSync('off', 'Loaded with ' + renderFaults.length + ' problem' + (renderFaults.length>1?'s':''));
+}
+function renderAll(){
+  if(!D || !ME) return;
+  renderFaults = [];
+  safely('month bar', renderMonthBar);
+  safely('dropdowns', refreshSelects);
+  safely('overview', renderDash);
+  safely('tasks', renderTasks);
+  safely('checklists', renderCheck);
+  safely('clock-in', renderClock);
+  safely('directory', renderPeople);
+  safely('properties', renderProps);
+  safely('settings', renderSettings);
+  if(can(3)){
+    safely('Slack issues', renderIssues);
+    safely('guest feedback', renderGuest);
+    safely('performance', renderPerf);
+    safely('mistakes', renderMistakes);
+  }
+  /* The four money screens moved up to level 4 with the Revenue tab. Drawing
+     them for a manager would only ever produce empty tables now — the server
+     sends no rows — but it would also run fundStats and perOwner over nothing
+     on every poll, and leave four blank panels one URL away. */
+  if(can(4)){
+    safely('bookings', renderBookings);
+    safely('expenses', renderExpenses);
+    safely('refunds', renderRefunds);
+    safely('field funds', renderFunds);
+    safely('incentives', renderIncentives);
+    safely('reports', renderReports);
+    safely('logins', renderLogins);
+  }
+  document.querySelectorAll('.reveal').forEach(el=>el.classList.add('in'));
+  showFaults();
+}
+
+/* ══════════ START ══════════ */
+window.addEventListener('error', function(e){
+  if(!$('app') || $('app').classList.contains('hidden')) return;
+  const box = $('dashAlerts'); if(!box || box.innerHTML.indexOf('went wrong') > -1) return;
+  box.innerHTML = '<div class="note note--bad"><b>Something went wrong on this screen.</b><br>' +
+    esc((e.message||'') + ' — ' + (e.filename||'').split('/').pop() + ':' + (e.lineno||'')) + '</div>' + box.innerHTML;
+});
+(function init(){
+  ['tDue'].forEach(id=>{ if($(id)) $(id).value=''; });
+  ['gfDate','pfDate','msDate','eDate','fDate'].forEach(id=>{ if($(id)) $(id).value = dateNow(); });
+  curMonth = ymNow();
+
+  /* Offline: show the last synced copy rather than an empty screen. Someone
+     standing in a stairwell in Accra with one bar still sees today's list. */
+  function cached(){
+    try{ const c = localStorage.getItem('hostpro_cache'); return c ? JSON.parse(c) : null; }catch(e){ return null; }
+  }
+  function start(){
+    let saved = null;
+    try{ saved = localStorage.getItem('hostpro_auth'); }catch(e){}
+    if(!saved){ showGate('gate'); loadNames(); return; }
+    AUTH = JSON.parse(saved);
+    showGate('app');
+    const c = cached();
+    /* Draw the cached copy if there is one, but never let that stop the
+       live fetch — that ordering is what left the screen stuck on
+       "Starting" with nothing to explain it. */
+    setSync('sync','Loading');
+    if(c && c.ok){
+      try{ D=c; ME=c.me; buildNav(); renderAll(); setSync('sync','Checking for changes'); }
+      catch(e){ if(window.console) console.error('HostPro OS — cached view', e); }
+    }
+    call('apiPull', AUTH).then(function(r){
+      if(!r || !r.ok){
+        const why = (r && r.error) || 'the workspace sent nothing back';
+        if(!c && /sign in|password|team/i.test(why)) return signOut(true);
+        setSync('off','Could not load');
+        const box = $('dashAlerts');
+        if(box) box.innerHTML = '<div class="note note--bad"><b>The workspace refused the request.</b><br>' +
+          esc(why) + '</div>';
+        return;
+      }
+      D=r; ME=r.me; REV=r.rev;
+      try{ localStorage.setItem('hostpro_cache', JSON.stringify(r)); }catch(e){}
+      buildNav(); renderAll();
+      if(!renderFaults.length)
+        setSync('ok','Synced ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}));
+    }).catch(function(err){
+      setSync('off', c ? 'Offline — showing the last sync' : 'No connection');
+      const box = $('dashAlerts');
+      if(box && !c) box.innerHTML = '<div class="note note--bad"><b>Could not reach the workspace.</b><br>' +
+        esc((err && err.message) || err) +
+        '<br><br>If this is the installed app, check the link under Settings. If this is the Apps Script ' +
+        'page, redeploy: Deploy ▸ Manage deployments ▸ pencil ▸ New version.</div>';
+    });
+  }
+  if(!HAS_GSR && !API_URL){ showGate('serverGate'); }
+  else start();
+
+  setInterval(poll, 12000);
+  document.addEventListener('visibilitychange', () => { if(!document.hidden) poll(); });
+  const NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+  if('serviceWorker' in navigator && location.protocol === 'https:' && !HAS_GSR && !NATIVE){
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  }
+  if(NATIVE) document.documentElement.classList.add('native');
+})();
+</script>
+</body>
+</html>
